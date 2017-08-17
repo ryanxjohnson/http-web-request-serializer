@@ -1,0 +1,9 @@
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\bin\Debug\WebRequestSerializerTests.dll
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\bin\Debug\WebRequestSerializerTests.pdb
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\bin\Debug\nunit.framework.dll
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\bin\Debug\WebRequestSerializer.dll
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\bin\Debug\WebRequestSerializer.pdb
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\bin\Debug\nunit.framework.xml
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\obj\Debug\HttpWebRequestSerializerTests.csprojResolveAssemblyReference.cache
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\obj\Debug\WebRequestSerializerTests.dll
+C:\Users\rjohnson\GitHub\http-web-request-serializer\WebRequestSerializerTests\obj\Debug\WebRequestSerializerTests.pdb
