@@ -6,15 +6,20 @@ namespace HttpWebRequestSerializer
 {
     public static class RequestBuilder
     {
-        public static HttpWebRequest BuildBaseHttpWebRequest(this IDictionary<string, object> requestHeaders, string url)
+        public static HttpWebRequest BuildBaseHttpWebRequest(this IDictionary<string, object> requestHeaders, string url = null)
         {
-            var req = (HttpWebRequest)WebRequest.Create(url);
+            var uri = !string.IsNullOrEmpty(url) ? url : (string) requestHeaders["Url"];
+
+            var req = (HttpWebRequest)WebRequest.Create(uri);
 
             foreach (var header in requestHeaders)
             {
                 var value = (string)header.Value;
                 switch (header.Key)
                 {
+                    case "Url":
+                        // no need to do anything with this
+                        break;
                     case "Method":
                         req.Method = value;
                         break;
@@ -40,7 +45,11 @@ namespace HttpWebRequestSerializer
                         req.Host = value;
                         break;
                     case "IfModifiedSince":
+                    case "If-Modified-Since":
                         req.IfModifiedSince = Convert.ToDateTime(value);
+                        break;
+                    case "IfNoneMatch":
+                        //req.IfNoneMatch
                         break;
                     case "KeepAlive":
                         req.KeepAlive = Convert.ToBoolean(value);
@@ -54,14 +63,18 @@ namespace HttpWebRequestSerializer
                         req.TransferEncoding = value;
                         break;
                     case "UserAgent":
+                    case "User-Agent":
                         req.UserAgent = value;
+                        break;
+                    case "HttpVersion":
+                        req.ProtocolVersion = Version.Parse("1.1");
                         break;
                     default:
                         req.Headers[header.Key] = value;
                         break;
                 }
             }
-
+            
             return req;
         }
     }
