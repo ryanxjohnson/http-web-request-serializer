@@ -13,7 +13,7 @@ namespace HttpWebRequestSerializer
             var requestLine = ParseRequestLine(parsedHeaders[0]);
 
             dict["Method"] = requestLine.method;
-            dict["Url"] = requestLine.url;
+            dict["RequestUri"] = requestLine.url;
             dict["HttpVersion"] = requestLine.httpVersion;
 
             for (var i = 1; i < parsedHeaders.Length; i++)

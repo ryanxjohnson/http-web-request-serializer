@@ -8,8 +8,8 @@ namespace HttpWebRequestSerializer.Extensions
         {
             // machine and extended characters
             var regex = new Regex(@"[\x00-\x1F\u007F-\uFFFF]", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-            return regex.Replace(input, string.Empty).Trim();
+            
+            return regex.Replace(input, string.Empty).Replace("\r", string.Empty).Trim();
         }
     }
 }

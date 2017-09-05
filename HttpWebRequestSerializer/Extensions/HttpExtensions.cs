@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using ICSharpCode.SharpZipLib.GZip;
 
@@ -18,6 +17,15 @@ namespace HttpWebRequestSerializer.Extensions
             }
 
             return null;
+        }
+
+        public static void WritePostDataToRequestStream(this WebRequest req, string value)
+        {
+            var data = System.Text.Encoding.ASCII.GetBytes(value);
+            req.ContentLength = data.Length;
+
+            using (var streamWriter = req.GetRequestStream())
+                streamWriter.Write(data, 0, data.Length);
         }
 
         public static string GetResponseFromGzip(this HttpWebRequest req)
@@ -43,20 +51,18 @@ namespace HttpWebRequestSerializer.Extensions
                 return response.GetResponseStream();
 
             var decompressedStream = new MemoryStream();
-            int size = 2048;
-            var writeData = new byte[2048];
+            var size = 2048;
+            var writeData = new byte[size];
+
             while (true)
             {
                 size = compressedStream.Read(writeData, 0, size);
                 if (size > 0)
-                {
                     decompressedStream.Write(writeData, 0, size);
-                }
                 else
-                {
                     break;
-                }
             }
+
             decompressedStream.Seek(0, SeekOrigin.Begin);
             return decompressedStream;
         }

@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using HttpWebRequestSerializer;
 using HttpWebRequestSerializer.Extensions;
-using ICSharpCode.SharpZipLib.GZip;
 using NUnit.Framework;
 
 namespace HttpWebRequestSerializerTests
@@ -22,19 +17,17 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
 Accept-Encoding: gzip, deflate
 Accept-Language: en-US,en;q=0.8";
-//If-None-Match: ""359670651+gzip""
-//If-Modified-Since: Fri, 09 Aug 2013 23:54:35 GMT";
 
-        [Test]
+        [Test, Ignore("Scratchpad")]
         public void Should_Parse_Headers()
         {
-            var d = headers1.ParseHeaders();
+            var dictionary = headers1.ParseHeaders();
 
-            foreach (var o in d)
+            foreach (var o in dictionary)
                 Console.WriteLine($"{o.Key}: {o.Value}");
         }
 
-        [Test]
+        [Test, Ignore("Scratchpad")]
         public void Should_Parse_Headers_And_Build_Http_Request()
         {
             var result = headers1.ParseHeaders().BuildBaseHttpWebRequest().GetResponseFromGzip();
