@@ -53,6 +53,7 @@
     <Compile Include="RequestDisassemblerTests.cs" />
     <Compile Include="SerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TextSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

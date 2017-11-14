@@ -7,78 +7,87 @@ namespace HttpWebRequestSerializer
 {
     public static class RequestBuilder
     {
-        public static HttpWebRequest BuildBaseHttpWebRequest(this IDictionary<string, object> requestHeaders, string url = null)
+        // API Method
+        public static HttpWebRequest CreateWebRequestFromJson(string json)
         {
-            var uri = !string.IsNullOrEmpty(url) ? url : (string) requestHeaders["RequestUri"];
+            var dict = json.DeserializeRequestProperties();
+            var uri = (string)dict["Uri"];
 
             var req = (HttpWebRequest)WebRequest.Create(uri);
+            req.CookieContainer = new CookieContainer();
 
-            foreach (var header in requestHeaders)
-            {
-                var value = header.Value;
-                switch (header.Key)
-                {
-                    case "Url":
-                    case "Body":
-                        // no need to do anything with this
-                        break;
-                    case "Method":
-                        req.Method = (string) value;
-                        break;
-                    case "Accept":
-                        req.Accept = (string)value;
-                        break;
-                    case "Connection":
-                        // throws an exception when setting value, use KeepAlive
-                        break;
-                    case "ContentType":
-                        req.ContentType = (string)value;
-                        break;
-                    case "Content-Length":
-                        req.ContentLength = Convert.ToInt64(value);
-                        break;
-                    case "Date":
-                        req.Date = Convert.ToDateTime(value);
-                        break;
-                    case "Expect":
-                        req.Expect = (string)value;
-                        break;
-                    case "Host":
-                        req.Host = (string)value; 
-                        break;
-                    case "IfModifiedSince":
-                    case "If-Modified-Since":
-                        req.IfModifiedSince = Convert.ToDateTime(value);
-                        break;
-                    case "KeepAlive":
-                    case "Keep-Alive":
-                        req.KeepAlive = Convert.ToBoolean(value);
-                        break;
-                    case "Proxy-Connection":
-                        break;
-                    case "Referer":
-                        req.Referer = (string)value;
-                        break;
-                    case "TransferEncoding":
-                        req.TransferEncoding = (string)value;
-                        break;
-                    case "UserAgent":
-                    case "User-Agent":
-                        req.UserAgent = (string)value;
-                        break;
-                    case "HttpVersion":
-                        var version = Convert.ToString(value).Split('/')[1];
-                        req.ProtocolVersion = Version.Parse(version);
-                        break;
-                    default:
-                        req.Headers[header.Key] = Convert.ToString(value);
-                        break;
-                }
-            }
+            foreach (var header in (Dictionary<string, object>)dict["Headers"])
+                req.SetHeader(header.Key, (string)header.Value);
+
+            if (dict.ContainsKey("Cookie"))
+                foreach (var cookie in (IDictionary<string, object>)dict["Cookie"])
+                    req.CookieContainer.Add(new Uri(uri), new Cookie(cookie.Key, (string)cookie.Value));
 
             if (req.Method == "POST")
-                req.WritePostDataToRequestStream((string)requestHeaders["Body"]);   
-            
+                req.WritePostDataToRequestStream((string)dict["Data"]);
+
+            return req;
+        }
+
+        public static HttpWebRequest SetHeader(this HttpWebRequest req, string key, string value)
+        {
+            switch (key)
+            {
+                case "Method":
+                    req.Method = value;
+                    break;
+                case "Accept":
+                    req.Accept = value;
+                    break;
+                case "Connection":
+                    //req.Connection = value;
+                    //System.ArgumentException : Keep-Alive and Close may not be set using this property.
+                    break;
+                case "ContentType":
+                case "Content-Type":
+                    req.ContentType = value;
+                    break;
+                case "Content-Length":
+                    req.ContentLength = Convert.ToInt64(value);
+                    break;
+                case "Date":
+                    req.Date = Convert.ToDateTime(value);
+                    break;
+                case "Expect":
+                    req.Expect = value;
+                    break;
+                case "Host":
+                    req.Host = value;
+                    break;
+                case "HttpVersion":
+                    var version = Convert.ToString(value).Split('/')[1];
+                    req.ProtocolVersion = Version.Parse(version);
+                    break;
+                case "IfModifiedSince":
+                case "If-Modified-Since":
+                    req.IfModifiedSince = Convert.ToDateTime(value);
+                    break;
+                case "KeepAlive":
+                case "Keep-Alive":
+                    req.KeepAlive = Convert.ToBoolean(value);
+                    break;
+                case "Proxy-Connection":
+                    break;
+                case "Referer":
+                    req.Referer = value;
+                    break;
+                case "TransferEncoding":
+                    req.TransferEncoding = value;
+                    break;
+                case "UserAgent":
+                case "User-Agent":
+                    req.UserAgent = value;
+                    break;
+                default:
+                    req.Headers[key] = value;
+                    break;
+            }
+
             return req;
         }
     }

@@ -43,7 +43,11 @@ Accept-Language: en-US,en;q=0.8";
             var d = serializedRequest.DeserializeRequestProperties();
 
             // build the request from the dictionary
-            var req2 = d.BuildBaseHttpWebRequest();
+            var req2 = (HttpWebRequest) WebRequest.Create((string)d["url"]);
+            foreach (var kv in d)
+            {
+                req2.SetHeader(kv.Key, (string)kv.Value);
+            }
 
             var html1 = req.GetResponseFromGzip();
             var html2 = req2.GetResponseFromGzip();
@@ -55,9 +59,12 @@ Accept-Language: en-US,en;q=0.8";
         [Test, Ignore("Scratchpad")]
         public void Should_Parse_Headers_Build_Request_Serialize_Deserialize_And_Perform_Request()
         {
-            var headersDictionary = headers1.ParseHeaders();
-
-            var req = headersDictionary.BuildBaseHttpWebRequest();
+            var headersDictionary = headers1.ParseRawRequest();
+            var req = (HttpWebRequest) WebRequest.Create(headersDictionary.uri);
+            foreach (var kv in headersDictionary.headers)
+            {
+                req.SetHeader(kv.Key, (string)kv.Value);
+            }
 
             // take the http web request apart
             var result = req.DisassembleWebRequest();
@@ -69,11 +76,15 @@ Accept-Language: en-US,en;q=0.8";
             var d = serializedRequest.DeserializeRequestProperties();
 
             // build the request from the dictionary
-            var req2 = d.BuildBaseHttpWebRequest();
+            var req2 = (HttpWebRequest)WebRequest.Create((string)d["url"]);
+            foreach (var kv in d)
+            {
+                req2.SetHeader(kv.Key, (string)kv.Value);
+            }
 
             var html = req2.GetResponseFromGzip();
 
-            File.WriteAllText(@"c:\users\rjohnson\desktop\example.html", html);
+            File.WriteAllText(@"c:\users\rjohnson\desktop\example2.html", html);
         }
     }
 }

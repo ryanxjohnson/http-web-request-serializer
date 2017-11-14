@@ -6,7 +6,7 @@ namespace HttpWebRequestSerializer
 {
     public static class Serializer
     {
-        private static JavaScriptSerializer serializer => new JavaScriptSerializer();
+        private static readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
 
         public static string SerializeRequestProperties(this IDictionary<string, object> properties)
         {

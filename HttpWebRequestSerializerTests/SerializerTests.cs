@@ -54,7 +54,11 @@ namespace HttpWebRequestSerializerTests
         [Test]
         public void Should_Build_Web_Request_From_Dictionary()
         {
-            var req = requestHeaders.BuildBaseHttpWebRequest("http://www.google.com");
+            var req = (HttpWebRequest) WebRequest.Create("http://www.google.com");
+            foreach (var requestHeader in requestHeaders)
+            {
+                req.SetHeader(requestHeader.Key, (string) requestHeader.Value);
+            }
 
             var expected = MockRequest();
             Assert.AreEqual(expected.GetType(), req.GetType());
@@ -64,9 +68,13 @@ namespace HttpWebRequestSerializerTests
         public void Should_Deserialize_And_Build_Valid_Request()
         {
             var request = json.DeserializeRequestProperties();
-            var headers = request["Headers"] as IDictionary<string, object>;
+            //var headers = request["Headers"] as IDictionary<string, object>;
 
-            var req = headers.BuildBaseHttpWebRequest("http://www.google.com");
+            var req = (HttpWebRequest)WebRequest.Create("http://www.google.com");
+            foreach (var requestHeader in requestHeaders)
+            {
+                req.SetHeader(requestHeader.Key, (string)requestHeader.Value);
+            }
 
             var expected = MockRequest();
             Assert.AreEqual(expected.GetType(), req.GetType());
