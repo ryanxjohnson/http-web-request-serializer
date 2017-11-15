@@ -9,9 +9,9 @@ namespace HttpWebRequestSerializer
     public static class HttpParser
     {
         // API Method
-        public static string GetRawRequestAsJson(string request)
+        public static string GetRawRequestAsJson(string request, SerializationOptions so = null)
         {
-            return GetRawRequestAsDictionary(request).SerializeRequestProperties();
+            return GetRawRequestAsDictionary(request).SerializeRequestProperties(so);
         }
 
         public static IDictionary<string, object> GetRawRequestAsDictionary(string request)
@@ -29,7 +29,7 @@ namespace HttpWebRequestSerializer
 
         public static (string uri, Dictionary<string, string> headers, Dictionary<string, string> cookies, string postData) ParseRawRequest(this string request)
         {
-            var parsedRequest = request.Split('\n');
+            var parsedRequest = request.Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
 
             var requestLine = parsedRequest[0].ParseRequestLine();
             var headers = new Dictionary<string, string>
@@ -38,23 +38,46 @@ namespace HttpWebRequestSerializer
                 ["HttpVersion"] = requestLine.httpVersion
             };
 
-            var lastHeaderIndex = Array.IndexOf(parsedRequest, "\r");
-            for (var i = 1; i < (lastHeaderIndex > -1 ? lastHeaderIndex : parsedRequest.Length); i++)
+            int indexToUse;
+            var blankIndex = Array.IndexOf(parsedRequest, "");
+            if (blankIndex == -1)
+                indexToUse = parsedRequest.Length;
+            else
+                indexToUse = blankIndex - 1;
+
+            for (var i = 1; i < indexToUse; i++)
             {
                 var header = parsedRequest[i].Split(':');
                 headers[header[0].CleanHeader()] = header[1].CleanHeader();
             }
 
             headers.Remove("Cookie"); // not really a header, should be set in req.CookieContainer
-            request.TryParseCookies(out Dictionary<string, string> cookies);
-            request.TryParsePostDataString(out string postData);
 
+            Dictionary<string, string> cookies;
+            var cookieIndex = Array.FindLastIndex(parsedRequest, s => s.StartsWith("Cookie"));
+            if (cookieIndex > 0)
+            {
+                parsedRequest[cookieIndex].TryParseCookies(out Dictionary<string, string> c);
+                cookies = c;
+            }
+            else
+            {
+                request.TryParseCookies(out Dictionary<string, string> c);
+                cookies = c;
+            }
+
+            string postData = null;
+            var postDataIndex = Array.FindIndex(parsedRequest, s => s == "");
+            if (postDataIndex > 0)
+                request.TryParsePostDataString(out postData);
+
+            
             return (requestLine.url, headers, cookies, postData);
         }
 
         public static bool TryParseCookies(this string request, out Dictionary<string, string> cookieDictionary)
         {
-            var matches = new Regex(@"Cookie:(?<Cookie>(.+))").Match(request);
+            var matches = new Regex(@"Cookie:(?<Cookie>(.+))", RegexOptions.Singleline).Match(request);
             var cookies = matches.Groups["Cookie"].ToString().Trim().Split(';');
 
             if (cookies.Length < 1 || cookies.Contains(""))
@@ -69,15 +92,16 @@ namespace HttpWebRequestSerializer
 
         public static bool TryParsePostDataString(this string request, out string postData)
         {
-            var index = request.IndexOf("\r\n\r\n", StringComparison.Ordinal);
+            var index = request.Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
+            var postDataIndex = index.Length;
 
-            if (index == -1)
+            if (postDataIndex == -1)
             {
-                postData = null;
+                postData = "";
                 return false;
             }
 
-            postData = request.Substring(index, request.Length - index).CleanHeader();
+            postData = index[postDataIndex - 1];
             return true;
         }
 

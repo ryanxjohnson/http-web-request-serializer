@@ -8,9 +8,16 @@ namespace HttpWebRequestSerializer
     {
         private static readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
 
-        public static string SerializeRequestProperties(this IDictionary<string, object> properties)
+        public static string SerializeRequestProperties(this IDictionary<string, object> properties, SerializationOptions so = null)
         {
             var request = properties.MakeDictionary();
+
+            if (so?.doNotSerialize == null)
+                return serializer.Serialize(request);
+
+            foreach (var s in so.doNotSerialize)
+                request.Remove(s);
+
             return serializer.Serialize(request);
         }
 

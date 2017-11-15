@@ -30,7 +30,29 @@ Cookie: ilikecookies:chocchip
 
 helloworld";
 
+        private const string sampleRequestWithExpect =
+            @"POST http://www.example.com/ HTTP/1.1
+User-Agent: curl/7.54.1
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Host: www.example.com
+Content-Length: 10
+Expect: 100-continue
+Connection: Keep-Alive
+
+helloworld";
+
+        private const string samplePostNoCarriageReturn = @"POST https://httpbin.org/post HTTP/1.1\nHost: httpbin.org\nUser-Agent: curl/7.54.1\nAccept: */*\nContent-Length: 10\nContent-Type: application/x-www-form-urlencoded\nCookie: ilikecookies:chocchip\n\nhelloworld";
+
         private const string serializedPost = @"{""Uri"":""https://httpbin.org/post"",""Headers"":{""Method"":""POST"",""HttpVersion"":""HTTP/1.1"",""Host"":""httpbin.org"",""User-Agent"":""curl/7.54.1"",""Accept"":""*/*"",""Content-Length"":""10"",""Content-Type"":""application/x-www-form-urlencoded""},""Cookie"":{""ilikecookies"":""chocchip""},""Data"":""helloworld""}";
+        private const string serializedPostNoCookieNoData = "{\"Uri\":\"https://httpbin.org/post\",\"Headers\":{\"Method\":\"POST\",\"HttpVersion\":\"HTTP/1.1\",\"Host\":\"httpbin.org\",\"User-Agent\":\"curl/7.54.1\",\"Accept\":\"*/*\",\"Content-Length\":\"10\",\"Content-Type\":\"application/x-www-form-urlencoded\"}}";
+
+        [Test]
+        public void Should_Serialize()
+        {
+            var json = HttpParser.GetRawRequestAsJson(sampleRequestWithExpect);
+            Console.WriteLine(json);
+        }
 
         [Test]
         public void Should_Serlialize_Raw_Request_Get()
@@ -39,11 +61,23 @@ helloworld";
             Assert.AreEqual(serializedGet, json);
         }
 
-        [Test]
-        public void Should_Serlialize_Raw_Request_Post()
+        [TestCase(samplePost, serializedPost)]
+        [TestCase(samplePostNoCarriageReturn, serializedPost)]
+        public void Should_Serlialize_Raw_Request_Post(string sample, string expected)
         {
-            var json = HttpParser.GetRawRequestAsJson(samplePost);
-            Assert.AreEqual(serializedPost, json);
+            var json = HttpParser.GetRawRequestAsJson(sample);
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void Should_Not_Serialize_Data_Or_Cookies()
+        {
+            var so = new SerializationOptions();
+            so.IgnoreKey("Cookie");
+            so.IgnoreKey("Data");
+            var json = HttpParser.GetRawRequestAsJson(samplePost, so);
+
+            Assert.AreEqual(serializedPostNoCookieNoData, json);
         }
 
         [Test]
@@ -56,10 +90,6 @@ helloworld";
         public void Should_Build_Http_Request_From_Json_Post()
         {
             var req = RequestBuilder.CreateWebRequestFromJson(serializedPost);
-
-            var resp = req.GetResponse();
-
-            resp.CreateObjRef(Type.GetType("req"));
         }
     }
 }

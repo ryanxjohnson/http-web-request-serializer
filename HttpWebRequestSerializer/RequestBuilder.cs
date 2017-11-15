@@ -23,8 +23,9 @@ namespace HttpWebRequestSerializer
                 foreach (var cookie in (IDictionary<string, object>)dict["Cookie"])
                     req.CookieContainer.Add(new Uri(uri), new Cookie(cookie.Key, (string)cookie.Value));
 
-            if (req.Method == "POST")
-                req.WritePostDataToRequestStream((string)dict["Data"]);
+            if (dict.ContainsKey("Data"))
+                if (req.Method == "POST")
+                    req.WritePostDataToRequestStream((string)dict["Data"]);
 
             return req;
         }
@@ -54,6 +55,8 @@ namespace HttpWebRequestSerializer
                     req.Date = Convert.ToDateTime(value);
                     break;
                 case "Expect":
+                    if (value == "100-continue")
+                        break;
                     req.Expect = value;
                     break;
                 case "Host":
