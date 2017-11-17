@@ -21,7 +21,7 @@ namespace HttpWebRequestSerializer
 
             if (dict.ContainsKey("Cookie"))
                 foreach (var cookie in (IDictionary<string, object>)dict["Cookie"])
-                    req.CookieContainer.Add(new Uri(uri), new Cookie(cookie.Key, (string)cookie.Value));
+                    req.CookieContainer.Add(new Uri(uri), new Cookie((string)cookie.Key, (string)cookie.Value));
 
             if (dict.ContainsKey("Data"))
                 if (req.Method == "POST")

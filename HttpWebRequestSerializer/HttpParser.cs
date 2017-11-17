@@ -75,9 +75,9 @@ namespace HttpWebRequestSerializer
             return (requestLine.url, headers, cookies, postData);
         }
 
-        public static bool TryParseCookies(this string request, out Dictionary<string, string> cookieDictionary)
+        public static bool TryParseCookies(this string cookieString, out Dictionary<string, string> cookieDictionary)
         {
-            var matches = new Regex(@"Cookie:(?<Cookie>(.+))", RegexOptions.Singleline).Match(request);
+            var matches = new Regex(@"Cookie:(?<Cookie>(.+))", RegexOptions.Singleline).Match(cookieString);
             var cookies = matches.Groups["Cookie"].ToString().Trim().Split(';');
 
             if (cookies.Length < 1 || cookies.Contains(""))
@@ -86,7 +86,7 @@ namespace HttpWebRequestSerializer
                 return false;
             }
 
-            cookieDictionary = cookies.ToDictionary(c => c.Split(':')[0], c => c.Split(':')[1]);
+            cookieDictionary = cookies.ToDictionary(c => c.Split('=')[0].Trim(), c => c.Split('=')[1].Trim());
             return true;
         }
 

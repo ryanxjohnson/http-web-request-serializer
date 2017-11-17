@@ -12,10 +12,10 @@ namespace HttpWebRequestSerializer
         {
             var request = properties.MakeDictionary();
 
-            if (so?.doNotSerialize == null)
+            if (so?.DoNotSerialize == null)
                 return serializer.Serialize(request);
 
-            foreach (var s in so.doNotSerialize)
+            foreach (var s in so.DoNotSerialize)
                 request.Remove(s);
 
             return serializer.Serialize(request);

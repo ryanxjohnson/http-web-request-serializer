@@ -26,7 +26,7 @@ User-Agent: curl/7.54.1
 Accept: */*
 Content-Length: 10
 Content-Type: application/x-www-form-urlencoded
-Cookie: ilikecookies:chocchip
+Cookie: ilikecookies=chocchip
 
 helloworld";
 
@@ -46,13 +46,6 @@ helloworld";
 
         private const string serializedPost = @"{""Uri"":""https://httpbin.org/post"",""Headers"":{""Method"":""POST"",""HttpVersion"":""HTTP/1.1"",""Host"":""httpbin.org"",""User-Agent"":""curl/7.54.1"",""Accept"":""*/*"",""Content-Length"":""10"",""Content-Type"":""application/x-www-form-urlencoded""},""Cookie"":{""ilikecookies"":""chocchip""},""Data"":""helloworld""}";
         private const string serializedPostNoCookieNoData = "{\"Uri\":\"https://httpbin.org/post\",\"Headers\":{\"Method\":\"POST\",\"HttpVersion\":\"HTTP/1.1\",\"Host\":\"httpbin.org\",\"User-Agent\":\"curl/7.54.1\",\"Accept\":\"*/*\",\"Content-Length\":\"10\",\"Content-Type\":\"application/x-www-form-urlencoded\"}}";
-
-        [Test]
-        public void Should_Serialize()
-        {
-            var json = HttpParser.GetRawRequestAsJson(sampleRequestWithExpect);
-            Console.WriteLine(json);
-        }
 
         [Test]
         public void Should_Serlialize_Raw_Request_Get()

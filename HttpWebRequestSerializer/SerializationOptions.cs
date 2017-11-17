@@ -4,23 +4,16 @@ namespace HttpWebRequestSerializer
 {
     public class SerializationOptions
     {
-        public List<string> doNotSerialize;
-        //public Dictionary<string, object> doSerialize;
+        public List<string> DoNotSerialize;
 
         public SerializationOptions()
         {
-            doNotSerialize = new List<string>();    
-            //doSerialize = new Dictionary<string, object>();
+            DoNotSerialize = new List<string>();    
         }
 
         public void IgnoreKey(string key)
         {
-            doNotSerialize.Add(key);
+            DoNotSerialize.Add(key);
         }
-
-        //public void AddKey(string key, string value)
-        //{
-        //    doSerialize[key] = value;
-        //}
     }
 }
