@@ -11,7 +11,15 @@ namespace HttpWebRequestSerializer
         // API Method
         public static string GetRawRequestAsJson(string request, SerializationOptions so = null)
         {
-            return GetRawRequestAsDictionary(request).SerializeRequestProperties(so);
+            try
+            {
+                return GetRawRequestAsDictionary(request).SerializeRequestProperties(so);
+            }
+            catch (Exception)
+            {
+                // TODO: Make this a custom exception
+                throw new Exception("Invalid Request");
+            }
         }
 
         public static IDictionary<string, object> GetRawRequestAsDictionary(string request)
@@ -38,12 +46,8 @@ namespace HttpWebRequestSerializer
                 ["HttpVersion"] = requestLine.httpVersion
             };
 
-            int indexToUse;
             var blankIndex = Array.IndexOf(parsedRequest, "");
-            if (blankIndex == -1)
-                indexToUse = parsedRequest.Length;
-            else
-                indexToUse = blankIndex - 1;
+            var indexToUse = blankIndex == -1 ? parsedRequest.Length : blankIndex - 1;
 
             for (var i = 1; i < indexToUse; i++)
             {
@@ -51,7 +55,7 @@ namespace HttpWebRequestSerializer
                 headers[header[0].CleanHeader()] = header[1].CleanHeader();
             }
 
-            headers.Remove("Cookie"); // not really a header, should be set in req.CookieContainer
+            headers.Remove("Cookie"); // should be serialized on its own
 
             Dictionary<string, string> cookies;
             var cookieIndex = Array.FindLastIndex(parsedRequest, s => s.StartsWith("Cookie"));

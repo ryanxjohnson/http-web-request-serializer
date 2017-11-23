@@ -42,7 +42,7 @@ Connection: Keep-Alive
 
 helloworld";
 
-        private const string samplePostNoCarriageReturn = @"POST https://httpbin.org/post HTTP/1.1\nHost: httpbin.org\nUser-Agent: curl/7.54.1\nAccept: */*\nContent-Length: 10\nContent-Type: application/x-www-form-urlencoded\nCookie: ilikecookies:chocchip\n\nhelloworld";
+        private const string samplePostNoCarriageReturn = @"POST https://httpbin.org/post HTTP/1.1\nHost: httpbin.org\nUser-Agent: curl/7.54.1\nAccept: */*\nContent-Length: 10\nContent-Type: application/x-www-form-urlencoded\nCookie: ilikecookies=chocchip\n\nhelloworld";
 
         private const string serializedPost = @"{""Uri"":""https://httpbin.org/post"",""Headers"":{""Method"":""POST"",""HttpVersion"":""HTTP/1.1"",""Host"":""httpbin.org"",""User-Agent"":""curl/7.54.1"",""Accept"":""*/*"",""Content-Length"":""10"",""Content-Type"":""application/x-www-form-urlencoded""},""Cookie"":{""ilikecookies"":""chocchip""},""Data"":""helloworld""}";
         private const string serializedPostNoCookieNoData = "{\"Uri\":\"https://httpbin.org/post\",\"Headers\":{\"Method\":\"POST\",\"HttpVersion\":\"HTTP/1.1\",\"Host\":\"httpbin.org\",\"User-Agent\":\"curl/7.54.1\",\"Accept\":\"*/*\",\"Content-Length\":\"10\",\"Content-Type\":\"application/x-www-form-urlencoded\"}}";
@@ -77,12 +77,23 @@ helloworld";
         public void Should_Build_Http_Request_From_Json_Get()
         {
             var req = RequestBuilder.CreateWebRequestFromJson(serializedGet);
+            Assert.AreEqual("System.Net.HttpWebRequest", req.GetType().ToString());
         }
 
         [Test]
         public void Should_Build_Http_Request_From_Json_Post()
         {
             var req = RequestBuilder.CreateWebRequestFromJson(serializedPost);
+            Assert.AreEqual("System.Net.HttpWebRequest", req.GetType().ToString());
+        }
+
+        [TestCase("")]
+        [TestCase(null)]
+        [TestCase("gibberish \n falksfjl;")]
+        public void Should_Handle_Invalid_Request(string input)
+        {
+            var ex = Assert.Throws<Exception>(() => HttpParser.GetRawRequestAsJson(input));
+            Assert.AreEqual("Invalid Request", ex.Message);
         }
     }
 }
