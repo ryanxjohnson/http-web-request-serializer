@@ -71,10 +71,17 @@ namespace HttpWebRequestSerializer
             }
 
             string postData = null;
-            var postDataIndex = Array.FindIndex(parsedRequest, s => s == "");
-            if (postDataIndex > 0)
-                request.TryParsePostDataString(out postData);
-
+            if (headers["Method"] == "POST")
+            {
+                var postDataIndex = Array.FindIndex(parsedRequest, s => s == "");
+                if (postDataIndex > 0)
+                    request.TryParsePostDataString(out postData);
+            }
+            else
+            {
+                var qs = request.Contains('?') ? requestLine.url.Split('?')[1] : null;
+                postData = qs;
+            }
             
             return (requestLine.url, headers, cookies, postData);
         }
