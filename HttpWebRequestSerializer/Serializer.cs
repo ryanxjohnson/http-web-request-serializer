@@ -18,6 +18,10 @@ namespace HttpWebRequestSerializer
             foreach (var s in so.DoNotSerialize)
                 request.Remove(s);
 
+            // check if any values are null
+            foreach (var o in request)
+                if (o.Value == null) request[o.Key] = "";
+
             return serializer.Serialize(request);
         }
 

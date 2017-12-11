@@ -10,6 +10,14 @@ namespace HttpWebRequestSerializer.Extensions
         {
             using (var resp = req.GetResponse())
             {
+                if (resp.Headers["Content-Encoding"] == "gzip")
+                {
+                    using (var stream = resp.GetResponseStream())
+                        if (stream != null)
+                            using (var streamReader = new StreamReader(GetGzipStream((HttpWebResponse)resp)))
+                                return streamReader.ReadToEnd();
+                }
+
                 using (var stream = resp.GetResponseStream())
                     if (stream != null)
                         using (var streamReader = new StreamReader(stream))

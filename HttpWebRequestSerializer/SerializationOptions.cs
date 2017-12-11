@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace HttpWebRequestSerializer
 {
     public class SerializationOptions
     {
+        private string[] validKeys = new [] { "Uri", "Headers", "Cookie", "Data" };
+
         public List<string> DoNotSerialize;
 
         public SerializationOptions()
@@ -13,7 +16,8 @@ namespace HttpWebRequestSerializer
 
         public void IgnoreKey(string key)
         {
-            DoNotSerialize.Add(key);
+            if (Array.Exists(validKeys, k => k == key))
+                DoNotSerialize.Add(key);
         }
     }
 }

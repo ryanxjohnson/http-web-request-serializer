@@ -8,7 +8,6 @@ namespace HttpWebRequestSerializer
 {
     public static class HttpParser
     {
-        // API Method
         public static string GetRawRequestAsJson(string request, SerializationOptions so = null)
         {
             try
@@ -31,11 +30,11 @@ namespace HttpWebRequestSerializer
                 { "Uri", parsed.uri },
                 { "Headers", parsed.headers },
                 { "Cookie", parsed.cookies },
-                { "Data", parsed.postData }
+                { "Data", parsed.data }
             };
         }
 
-        public static (string uri, Dictionary<string, string> headers, Dictionary<string, string> cookies, string postData) ParseRawRequest(this string request)
+        public static (string uri, Dictionary<string, string> headers, Dictionary<string, string> cookies, string data) ParseRawRequest(this string request)
         {
             var parsedRequest = request.Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
 
@@ -70,20 +69,20 @@ namespace HttpWebRequestSerializer
                 cookies = c;
             }
 
-            string postData = null;
+            string data = null;
             if (headers["Method"] == "POST")
             {
                 var postDataIndex = Array.FindIndex(parsedRequest, s => s == "");
                 if (postDataIndex > 0)
-                    request.TryParsePostDataString(out postData);
+                    request.TryParsePostDataString(out data);
             }
             else
             {
-                var qs = request.Contains('?') ? requestLine.url.Split('?')[1] : null;
-                postData = qs;
+                var queryString = request.Contains('?') ? requestLine.url.Split('?')[1] : null;
+                data = queryString;
             }
             
-            return (requestLine.url, headers, cookies, postData);
+            return (requestLine.url, headers, cookies, data);
         }
 
         public static bool TryParseCookies(this string cookieString, out Dictionary<string, string> cookieDictionary)

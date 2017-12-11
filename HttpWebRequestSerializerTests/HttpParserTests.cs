@@ -44,7 +44,7 @@ helloworld";
             foreach (var o in dictionary.cookies)
                 Console.WriteLine($"{o.Key}: {o.Value}");
 
-            Console.WriteLine(dictionary.postData);
+            Console.WriteLine(dictionary.data);
         }
 
         [Test]
@@ -60,7 +60,7 @@ helloworld";
             foreach (var o in dictionary.cookies)
                 Console.WriteLine($"{o.Key}: {o.Value}");
 
-            Console.WriteLine(dictionary.postData);
+            Console.WriteLine(dictionary.data);
         }
 
         [Test]
@@ -113,7 +113,7 @@ helloworld";
                 req.SetHeader(kv.Key, (string)kv.Value);
 
             if (req.Method == "POST")
-                req.WritePostDataToRequestStream(result.postData);
+                req.WritePostDataToRequestStream(result.data);
 
             req.CookieContainer = new CookieContainer();
             foreach (var cookie in result.cookies)

@@ -11,5 +11,12 @@ namespace HttpWebRequestSerializer.Extensions
             
             return regex.Replace(input, string.Empty).Replace("\r", string.Empty).Trim();
         }
+
+        public static string SubstituteText(this string input, string newText, string pattern)
+        {
+            var match = Regex.Match(input, pattern);
+            var substring = match.Groups["QueryString"].Value;
+            return input.Replace("#{{" + substring + "}}", newText);    
+        }
     }
 }

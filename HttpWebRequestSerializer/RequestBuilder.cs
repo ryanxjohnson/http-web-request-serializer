@@ -7,27 +7,15 @@ namespace HttpWebRequestSerializer
 {
     public static class RequestBuilder
     {
-        // API Method
+        private const string pattern = @"#{{(?<QueryString>\w+)}}";
         public static HttpWebRequest CreateWebRequestFromJson(string json)
         {
-            var dict = json.DeserializeRequestProperties();
-            var uri = (string)dict["Uri"];
+            return BuildRequest(json.DeserializeRequestProperties());
+        }
 
-            var req = (HttpWebRequest)WebRequest.Create(uri);
-            req.CookieContainer = new CookieContainer();
-
-            foreach (var header in (Dictionary<string, object>)dict["Headers"])
-                req.SetHeader(header.Key, (string)header.Value);
-
-            if (dict.ContainsKey("Cookie"))
-                foreach (var cookie in (IDictionary<string, object>)dict["Cookie"])
-                    req.CookieContainer.Add(new Uri(uri), new Cookie(cookie.Key, (string)cookie.Value));
-
-            if (dict.ContainsKey("Data"))
-                if (req.Method == "POST")
-                    req.WritePostDataToRequestStream((string)dict["Data"]);
-
-            return req;
+        public static HttpWebRequest CreateWebRequestFromDictionary(IDictionary<string, object> dict)
+        {
+            return BuildRequest(dict);
         }
 
         public static HttpWebRequest SetHeader(this HttpWebRequest req, string key, string value)
@@ -92,6 +80,39 @@ namespace HttpWebRequestSerializer
             }
 
             return req;
+        }
+
+        private static HttpWebRequest BuildRequest(IDictionary<string, object> dict)
+        {
+            var uri = (string)dict["Uri"];
+
+            var req = (HttpWebRequest)WebRequest.Create(uri);
+            SetHeaders(dict, req);
+            SetCookies(dict, req, uri);
+            SetPostData(dict, req);
+
+            return req;
+        }
+
+        private static void SetHeaders(IDictionary<string, object> dict, HttpWebRequest req)
+        {
+            foreach (var header in (Dictionary<string, object>)dict["Headers"])
+                req.SetHeader(header.Key, (string)header.Value);
+        }
+
+        private static void SetCookies(IDictionary<string, object> dict, HttpWebRequest req, string uri)
+        {
+            if (!dict.ContainsKey("Cookie")) return;
+            req.CookieContainer = new CookieContainer();
+            foreach (var cookie in (IDictionary<string, object>)dict["Cookie"])
+                req.CookieContainer.Add(new Uri(uri), new Cookie(cookie.Key, (string)cookie.Value));
+        }
+
+        private static void SetPostData(IDictionary<string, object> dict, HttpWebRequest req)
+        {
+            if (!dict.ContainsKey("Data")) return;
+            if (req.Method == "POST")
+                req.WritePostDataToRequestStream((string) dict["Data"]);
         }
     }
 }

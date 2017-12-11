@@ -95,5 +95,36 @@ helloworld";
             var ex = Assert.Throws<Exception>(() => HttpParser.GetRawRequestAsJson(input));
             Assert.AreEqual("Invalid Request", ex.Message);
         }
+
+        [Test]
+        public void Should_Substitute_Url()
+        {
+            var rawWithDelimiter = @"GET https://www.wellmark.com/ProviderFinder/Doctor/DoctorPartial?#{{QueryString}} HTTP/1.1
+Host: www.wellmark.com
+Connection: keep-alive
+Accept: */*
+X-Requested-With: XMLHttpRequest
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36
+DNT: 1
+Referer: https://www.wellmark.com/ProviderFinder/Doctor/Results
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.8";
+
+            var expectedRaw = @"GET https://www.wellmark.com/ProviderFinder/Doctor/DoctorPartial?p=2&lat=41.6&lng=-93.61&rad=10&n=WBLUEPPO&s=P0HI0X41MY&if1=1&o=asc&ps=10&distance=2&mode=b&nn=Wellmark%20Blue%20PPO&sn=Family%20Practice&av=50301&DirectoryNetwork=WBLUEPPO HTTP/1.1
+Host: www.wellmark.com
+Connection: keep-alive
+Accept: */*
+X-Requested-With: XMLHttpRequest
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36
+DNT: 1
+Referer: https://www.wellmark.com/ProviderFinder/Doctor/Results
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.8";
+            var queryString = @"p=2&lat=41.6&lng=-93.61&rad=10&n=WBLUEPPO&s=P0HI0X41MY&if1=1&o=asc&ps=10&distance=2&mode=b&nn=Wellmark%20Blue%20PPO&sn=Family%20Practice&av=50301&DirectoryNetwork=WBLUEPPO";
+
+            var actualRaw = HttpWebRequestSerializer.Extensions.StringExtensions.SubstituteText(rawWithDelimiter, queryString, @"#{{(?<QueryString>\w+)}}");
+
+            Assert.AreEqual(expectedRaw, actualRaw);
+        }
     }
 }
