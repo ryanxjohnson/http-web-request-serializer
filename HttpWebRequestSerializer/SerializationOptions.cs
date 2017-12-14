@@ -5,7 +5,7 @@ namespace HttpWebRequestSerializer
 {
     public class SerializationOptions
     {
-        private string[] validKeys = new [] { "Uri", "Headers", "Cookie", "Data" };
+        private readonly string[] validKeys = { "Uri", "Headers", "Cookie", "Data" };
 
         public List<string> DoNotSerialize;
 

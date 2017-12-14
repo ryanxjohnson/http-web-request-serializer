@@ -21,25 +21,33 @@ namespace HttpWebRequestSerializer
             }
         }
 
-        public static IDictionary<string, object> GetRawRequestAsDictionary(string request)
+        public static IDictionary<string, object> GetRawRequestAsDictionary(string request, SerializationOptions so = null)
         {
             var parsed = request.ParseRawRequest();
 
-            return  new Dictionary<string, object>
+            var dict =  new Dictionary<string, object>
             {
                 { "Uri", parsed.uri },
                 { "Headers", parsed.headers },
                 { "Cookie", parsed.cookies },
                 { "Data", parsed.data }
             };
+
+            if (so?.DoNotSerialize == null)
+                return dict;
+
+            foreach (var s in so.DoNotSerialize)
+                dict.Remove(s);
+
+            return dict;
         }
 
-        public static (string uri, Dictionary<string, string> headers, Dictionary<string, string> cookies, string data) ParseRawRequest(this string request)
+        public static (string uri, IDictionary<string, object> headers, IDictionary<string, object> cookies, string data) ParseRawRequest(this string request)
         {
             var parsedRequest = request.Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
 
             var requestLine = parsedRequest[0].ParseRequestLine();
-            var headers = new Dictionary<string, string>
+            var headers = new Dictionary<string, object>
             {
                 ["Method"] = requestLine.method,
                 ["HttpVersion"] = requestLine.httpVersion
@@ -56,21 +64,21 @@ namespace HttpWebRequestSerializer
 
             headers.Remove("Cookie"); // should be serialized on its own
 
-            Dictionary<string, string> cookies;
+            IDictionary<string, object> cookies;
             var cookieIndex = Array.FindLastIndex(parsedRequest, s => s.StartsWith("Cookie"));
             if (cookieIndex > 0)
             {
-                parsedRequest[cookieIndex].TryParseCookies(out Dictionary<string, string> c);
+                parsedRequest[cookieIndex].TryParseCookies(out IDictionary<string, object> c);
                 cookies = c;
             }
             else
             {
-                request.TryParseCookies(out Dictionary<string, string> c);
+                request.TryParseCookies(out IDictionary<string, object> c);
                 cookies = c;
             }
 
             string data = null;
-            if (headers["Method"] == "POST")
+            if ((string)headers["Method"] == "POST")
             {
                 var postDataIndex = Array.FindIndex(parsedRequest, s => s == "");
                 if (postDataIndex > 0)
@@ -82,21 +90,30 @@ namespace HttpWebRequestSerializer
                 data = queryString;
             }
             
-            return (requestLine.url, headers, cookies, data);
+            return ((string uri, IDictionary<string, object> headers, IDictionary<string, object> cookies, string data)) (requestLine.url, headers, cookies, data);
         }
 
-        public static bool TryParseCookies(this string cookieString, out Dictionary<string, string> cookieDictionary)
+        public static bool TryParseCookies(this string cookieString, out IDictionary<string, object> cookieDictionary)
         {
             var matches = new Regex(@"Cookie:(?<Cookie>(.+))", RegexOptions.Singleline).Match(cookieString);
             var cookies = matches.Groups["Cookie"].ToString().Trim().Split(';');
 
             if (cookies.Length < 1 || cookies.Contains(""))
             {
-                cookieDictionary = new Dictionary<string, string>();
+                cookieDictionary = new Dictionary<string, object>();
                 return false;
             }
 
-            cookieDictionary = cookies.ToDictionary(c => c.Split('=')[0].Trim(), c => c.Split('=')[1].Trim());
+            cookieDictionary = new Dictionary<string, object>();
+
+            foreach (var cookie in cookies)
+            {
+                var key = cookie.Split('=')[0].Trim();
+                var value = cookie.Split('=')[1].Trim();
+                cookieDictionary[key] = value;
+            }
+
+            //cookieDictionary = cookies.ToDictionary(c => c.Split('=')[0].Trim(), c => c.Split('=')[1].Trim());
             return true;
         }
 

@@ -78,7 +78,7 @@ helloworld";
                 { "ilikecookies", "chocchip" }
             };
 
-            samplePost.TryParseCookies(out Dictionary<string, string> results);
+            samplePost.TryParseCookies(out IDictionary<string, object> results);
 
             foreach (var kv in expected)
             {
@@ -93,7 +93,7 @@ helloworld";
         [Test]
         public void Should_Handle_No_Cookies()
         {
-            var cookies = sampleGet.TryParseCookies(out Dictionary<string, string> cookieDictionary);
+            var cookies = sampleGet.TryParseCookies(out IDictionary<string, object> cookieDictionary);
 
             if (!cookies) return;
 
@@ -105,19 +105,21 @@ helloworld";
         public void Should_Parse_Headers_And_Build_Http_Request()
         {
             //var result = sampleGet.ParseHeaders();
-            var result = samplePost.ParseRawRequest();
+            var result = HttpParser.GetRawRequestAsDictionary(samplePost);
 
-            var req = (HttpWebRequest) WebRequest.Create(result.uri);
+            var req = RequestBuilder.CreateWebRequestFromDictionary(result);
 
-            foreach (var kv in result.headers)
-                req.SetHeader(kv.Key, (string)kv.Value);
+            //var req = (HttpWebRequest) WebRequest.Create(result.uri);
 
-            if (req.Method == "POST")
-                req.WritePostDataToRequestStream(result.data);
+            //foreach (var kv in result.headers)
+            //    req.SetHeader(kv.Key, (string)kv.Value);
 
-            req.CookieContainer = new CookieContainer();
-            foreach (var cookie in result.cookies)
-                req.CookieContainer.Add(new Uri(result.uri), new Cookie(cookie.Key, cookie.Value));
+            //if (req.Method == "POST")
+            //    req.WritePostDataToRequestStream(result.data);
+
+            //req.CookieContainer = new CookieContainer();
+            //foreach (var cookie in result.cookies)
+            //    req.CookieContainer.Add(new Uri(result.uri), new Cookie(cookie.Key, cookie.Value));
 
             Console.WriteLine(req.GetResponseString());
         }

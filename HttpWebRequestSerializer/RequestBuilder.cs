@@ -7,7 +7,6 @@ namespace HttpWebRequestSerializer
 {
     public static class RequestBuilder
     {
-        private const string pattern = @"#{{(?<QueryString>\w+)}}";
         public static HttpWebRequest CreateWebRequestFromJson(string json)
         {
             return BuildRequest(json.DeserializeRequestProperties());
@@ -96,7 +95,7 @@ namespace HttpWebRequestSerializer
 
         private static void SetHeaders(IDictionary<string, object> dict, HttpWebRequest req)
         {
-            foreach (var header in (Dictionary<string, object>)dict["Headers"])
+            foreach (var header in (IDictionary<string, object>)dict["Headers"])
                 req.SetHeader(header.Key, (string)header.Value);
         }
 
