@@ -58,7 +58,7 @@ namespace HttpWebRequestSerializer
 
             for (var i = 1; i < indexToUse; i++)
             {
-                var header = parsedRequest[i].Split(':');
+                var header = parsedRequest[i].Split(new[] { ':' }, 2);
                 headers[header[0].CleanHeader()] = header[1].CleanHeader();
             }
 
@@ -113,7 +113,6 @@ namespace HttpWebRequestSerializer
                 cookieDictionary[key] = value;
             }
 
-            //cookieDictionary = cookies.ToDictionary(c => c.Split('=')[0].Trim(), c => c.Split('=')[1].Trim());
             return true;
         }
 
