@@ -8,16 +8,45 @@ namespace HttpWebRequestSerializer
 {
     public static class HttpParser
     {
+        public static  ParsedRequest GetParsedRequest(string request, SerializationOptions so = null)
+        {
+            var (uri, headers, cookies, data) = request.ParseRawRequest();
+
+            if (so != null)
+            {
+                foreach (var option in so.DoNotSerialize)
+                {
+                    switch (option)
+                    {
+                        case "Data":
+                            data = null;
+                            break;
+                        case "Cookie":
+                            cookies = null;
+                            break;
+                    }
+                }
+            }
+
+            return new ParsedRequest
+            {
+                Url = uri,
+                Headers = headers,
+                Cookies = cookies,
+                RequestBody = data
+            };
+        }
+
         public static string GetRawRequestAsJson(string request, SerializationOptions so = null)
         {
             try
             {
                 return GetRawRequestAsDictionary(request).SerializeRequestProperties(so);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // TODO: Make this a custom exception
-                throw new Exception("Invalid Request");
+                throw new Exception($"Invalid Request: {e.Message}");
             }
         }
 

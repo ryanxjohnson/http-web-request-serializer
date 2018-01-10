@@ -19,7 +19,9 @@ namespace HttpWebRequestSerializer
                 request.Remove(s);
 
             // check if any values are null
-            foreach (var o in request)
+            // What's likely happening is that SignalData is indirectly changing the serialized dictionary under the hood during the loop.
+            // So convert to list fixes that
+            foreach (var o in request.ToList())
                 if (o.Value == null) request[o.Key] = "";
 
             return serializer.Serialize(request);

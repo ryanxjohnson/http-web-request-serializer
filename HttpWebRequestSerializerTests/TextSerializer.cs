@@ -1,5 +1,6 @@
 ﻿using System;
 using HttpWebRequestSerializer;
+using HttpWebRequestSerializer.Extensions;
 using NUnit.Framework;
 
 namespace HttpWebRequestSerializerTests
@@ -87,13 +88,30 @@ helloworld";
             Assert.AreEqual("System.Net.HttpWebRequest", req.GetType().ToString());
         }
 
+        [Test]
+        public void Should_Build_ParsedRequestGet()
+        {
+            var pr = HttpParser.GetParsedRequest(sampleGet);
+            var req = pr.CreateWebRequestFromParsedRequest();
+
+            req.GetResponseString();
+        }
+
+        [Test]
+        public void Should_Build_ParsedRequestPost()
+        {
+            var pr = HttpParser.GetParsedRequest(samplePost);
+            var req = pr.CreateWebRequestFromParsedRequest();
+
+            req.GetResponseString();
+        }
+
         [TestCase("")]
         [TestCase(null)]
         [TestCase("gibberish \n falksfjl;")]
         public void Should_Handle_Invalid_Request(string input)
         {
-            var ex = Assert.Throws<Exception>(() => HttpParser.GetRawRequestAsJson(input));
-            Assert.AreEqual("Invalid Request", ex.Message);
+            Assert.Throws<Exception>(() => HttpParser.GetRawRequestAsJson(input));
         }
 
         [Test]
@@ -125,6 +143,39 @@ Accept-Language: en-US,en;q=0.8";
             var actualRaw = HttpWebRequestSerializer.Extensions.StringExtensions.SubstituteText(rawWithDelimiter, queryString, @"#{{(?<QueryString>\w+)}}");
 
             Assert.AreEqual(expectedRaw, actualRaw);
+        }
+
+        [Test]
+        public void S()
+        {
+            var r = @"GET http://www.aetna.com/dse/search/results?searchQuery=Pediatrics&geoSearch=90210&pagination.offset=&zipCode=90210&distance=0&filterValues=&useZipForLatLonSearch=true&fastProduct=&currentSelectedPlan=&selectedMemberForZip=&sessionCachingKey=&loggedInZip=true&modalSelectedPlan=BHHMO&isTab1Clicked=&isTab2Clicked=&quickSearchTypeMainTypeAhead=&quickSearchTypeThrCol=byProvType&mainTypeAheadSelectionVal=&thrdColSelectedVal=Pediatrics&isMultiSpecSelected=&hospitalNavigator=&productPlanName=(CA)+Aetna+Basic+HMO&hospitalNameFromDetails=&planCodeFromDetails=&hospitalFromDetails=false&aetnaId=&Quicklastname=&Quickfirstname=&QuickZipcode=90210&QuickCoordinates=34.10313099999999%2C-118.41625300000001&quickSearchTerm=&ipaFromDetails=&ipaFromResults=&ipaNameForProvider=&porgId=&officeLocation=&otherOfficeProviderName=&officesLinkIsTrueDetails=false&groupnavigator=&groupFromDetails=&groupFromResults=&groupNameForProvider=&suppressFASTCall=&classificationLimit=DMP&suppressFASTDocCall=false&axcelSpecialtyAddCatTierTrueInd=&suppressHLCall=&pcpSearchIndicator=true&specSearchIndicator=&stateCode=CA&geoMainTypeAheadLastQuickSelectedVal=90210&geoBoxSearch=true&lastPageTravVal=&debugInfo=&debugInfoMedicare=&planCategoryVal=&stateCodeFromCounty=&countyCode=&planYear=&linkwithoutplan=&site_id=dse&langPref=en&sendZipLimitInd=&ioeqSelectionInd=&ioe_qType=&sortOrder=&healthLineErrorMessage=&QuickGeoType=&originalWhereBoxVal=&quickCategoryCode=&comServletUrlWithParms=http%3A%2F%2Fwww30.aetna.com%2Fcom%2Forgmapping%2FCOMServlet%3FrequestoruniqueKey%3Dhttp%253A%252F%252Fwww.aetna.com%252Fdse%252Fsearch%253Fsite_id%253Ddse%26keyType%3DURL%26commPurpose%3DDSE%26callingPage%3Dcall_servlet.html&orgId=39934088&orgArrangementid=19200955&productPlanPipeName=&quickZipCodeFromFirstHLCall=&quickStateCodeFromFirstHLCall= HTTP/1.1
+Host: www.aetna.com
+Connection: keep-alive
+Accept: */*
+X-Requested-With: XMLHttpRequest
+ADRUM: isAjax:true
+X-Distil-Ajax: vsrfycewbxcddysuvtett
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36
+Referer: http://www.aetna.com/dse/search?site_id=dse&langPref=en
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US,en;q=0.9";
+
+            var json = HttpParser.GetRawRequestAsJson(r);
+        }
+
+        [Test]
+        public void Should_Parse_Get_No_Query_String()
+        {
+            var r = @"GET http://www.trdpnetwork.org/FGP/Provider HTTP/1.1";
+
+            var so = new SerializationOptions();
+            //so.IgnoreKey("Cookie");
+            //so.IgnoreKey("Data");
+
+            var json = HttpParser.GetRawRequestAsJson(r, so);
+            var req = RequestBuilder.CreateWebRequestFromJson(json);
+
+            Console.WriteLine(json);
         }
     }
 }
