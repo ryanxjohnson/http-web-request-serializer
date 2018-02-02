@@ -25,7 +25,6 @@ Accept-Language: en-US,en;q=0.9";
 Host: httpbin.org
 User-Agent: curl/7.54.1
 Accept: */*
-Content-Length: 10
 Content-Type: application/x-www-form-urlencoded
 Cookies: ilikecookies:chocchip
 
@@ -104,22 +103,9 @@ helloworld";
         [Test]
         public void Should_Parse_Headers_And_Build_Http_Request()
         {
-            //var result = sampleGet.ParseHeaders();
             var result = HttpParser.GetRawRequestAsDictionary(samplePost);
 
             var req = RequestBuilder.CreateWebRequestFromDictionary(result);
-
-            //var req = (HttpWebRequest) WebRequest.Create(result.uri);
-
-            //foreach (var kv in result.headers)
-            //    req.SetHeader(kv.Key, (string)kv.Value);
-
-            //if (req.Method == "POST")
-            //    req.WritePostDataToRequestStream(result.data);
-
-            //req.CookieContainer = new CookieContainer();
-            //foreach (var cookie in result.cookies)
-            //    req.CookieContainer.Add(new Uri(result.uri), new Cookie(cookie.Key, cookie.Value));
 
             Console.WriteLine(req.GetResponseString());
         }

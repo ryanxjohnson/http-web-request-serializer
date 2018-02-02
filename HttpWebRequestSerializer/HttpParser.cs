@@ -8,7 +8,7 @@ namespace HttpWebRequestSerializer
 {
     public static class HttpParser
     {
-        public static  ParsedRequest GetParsedRequest(string request, SerializationOptions so = null)
+        public static ParsedRequest GetParsedRequest(string request, SerializationOptions so = null)
         {
             var (uri, headers, cookies, data) = request.ParseRawRequest();
 
@@ -18,6 +18,12 @@ namespace HttpWebRequestSerializer
                 {
                     switch (option)
                     {
+                        case "Uri":
+                            uri = null;
+                            break;
+                        case "Headers":
+                            headers = null;
+                            break;
                         case "Data":
                             data = null;
                             break;
@@ -54,12 +60,12 @@ namespace HttpWebRequestSerializer
         {
             var parsed = request.ParseRawRequest();
 
-            var dict =  new Dictionary<string, object>
+            var dict = new Dictionary<string, object>
             {
-                { "Uri", parsed.uri },
-                { "Headers", parsed.headers },
-                { "Cookie", parsed.cookies },
-                { "Data", parsed.data }
+                { SerializationOptions.GetKeyName(SerializationOptionKey.Uri), parsed.uri },
+                { SerializationOptions.GetKeyName(SerializationOptionKey.Headers), parsed.headers },
+                { SerializationOptions.GetKeyName(SerializationOptionKey.Cookie), parsed.cookies },
+                { SerializationOptions.GetKeyName(SerializationOptionKey.RequestData), parsed.data }
             };
 
             if (so?.DoNotSerialize == null)
@@ -71,28 +77,68 @@ namespace HttpWebRequestSerializer
             return dict;
         }
 
-        public static (string uri, IDictionary<string, object> headers, IDictionary<string, object> cookies, string data) ParseRawRequest(this string request)
+        public static (string uri, IDictionary<string, object> headers, IDictionary<string, object> cookies, string data) ParseRawRequest(this string rawRequest)
         {
-            var parsedRequest = request.Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
+            var parsedRequest = rawRequest.Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
 
             var requestLine = parsedRequest[0].ParseRequestLine();
-            var headers = new Dictionary<string, object>
-            {
-                ["Method"] = requestLine.method,
-                ["HttpVersion"] = requestLine.httpVersion
-            };
 
-            var blankIndex = Array.IndexOf(parsedRequest, "");
-            var indexToUse = blankIndex == -1 ? parsedRequest.Length : blankIndex - 1;
+            var headers = InitializeHeadersDictionary(requestLine);
+            PopulateHeadersDictionary(parsedRequest, headers);
 
-            for (var i = 1; i < indexToUse; i++)
+            var cookies = GetCookiesFromParsedRequest(rawRequest, parsedRequest);
+            var data = GetRequestData(rawRequest, headers, parsedRequest, requestLine);
+
+            return (requestLine.url, headers, cookies, data);
+        }
+
+        private static void PopulateHeadersDictionary(string[] parsedRequest, IDictionary<string, object> headers)
+        {
+            for (var i = 1; i < DetectSplitIndex(parsedRequest); i++)
             {
                 var header = parsedRequest[i].Split(new[] { ':' }, 2);
                 headers[header[0].CleanHeader()] = header[1].CleanHeader();
             }
 
-            headers.Remove("Cookie"); // should be serialized on its own
+            // Cookie gets serialized separate from headers, so ignore it
+            headers.Remove(SerializationOptions.GetKeyName(SerializationOptionKey.Cookie));
+        }
 
+        private static string GetRequestData(string rawRequest, IReadOnlyDictionary<string, object> headers, string[] parsedRequest, ValueTuple<string, string, string> requestLine)
+        {
+            string data = null;
+            if ((string)headers["Method"] == "POST")
+            {
+                var postDataIndex = Array.FindIndex(parsedRequest, s => s == "");
+                if (postDataIndex > 0)
+                    rawRequest.TryParsePostDataString(out data);
+            }
+            else
+            {
+                var queryString = rawRequest.Contains('?') ? requestLine.Item2.Split('?')[1] : null;
+                data = queryString;
+            }
+            return data;
+        }
+
+        private static int DetectSplitIndex(string[] parsedRequest)
+        {
+            var blankIndex = Array.IndexOf(parsedRequest, "");
+            return blankIndex == -1 ? parsedRequest.Length : blankIndex - 1;
+        }
+
+        private static Dictionary<string, object> InitializeHeadersDictionary(ValueTuple<string, string, string> requestLine)
+        {
+            var headers = new Dictionary<string, object>
+            {
+                ["Method"] = requestLine.Item1,
+                ["HttpVersion"] = requestLine.Item3
+            };
+            return headers;
+        }
+
+        private static IDictionary<string, object> GetCookiesFromParsedRequest(string request, string[] parsedRequest)
+        {
             IDictionary<string, object> cookies;
             var cookieIndex = Array.FindLastIndex(parsedRequest, s => s.StartsWith("Cookie"));
             if (cookieIndex > 0)
@@ -105,21 +151,7 @@ namespace HttpWebRequestSerializer
                 request.TryParseCookies(out IDictionary<string, object> c);
                 cookies = c;
             }
-
-            string data = null;
-            if ((string)headers["Method"] == "POST")
-            {
-                var postDataIndex = Array.FindIndex(parsedRequest, s => s == "");
-                if (postDataIndex > 0)
-                    request.TryParsePostDataString(out data);
-            }
-            else
-            {
-                var queryString = request.Contains('?') ? requestLine.url.Split('?')[1] : null;
-                data = queryString;
-            }
-            
-            return ((string uri, IDictionary<string, object> headers, IDictionary<string, object> cookies, string data)) (requestLine.url, headers, cookies, data);
+            return cookies;
         }
 
         public static bool TryParseCookies(this string cookieString, out IDictionary<string, object> cookieDictionary)
@@ -163,7 +195,7 @@ namespace HttpWebRequestSerializer
         private static (string method, string url, string httpVersion) ParseRequestLine(this string request)
         {
             var firstLine = request.Split(' ');
-            return (firstLine[0].CleanHeader(), firstLine[1].CleanHeader(), firstLine[2].CleanHeader());
+            return (firstLine[0].CleanHeader(), firstLine[1].Trim(), firstLine[2].CleanHeader());
         }
     }
 }

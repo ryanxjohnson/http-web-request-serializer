@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Script.Serialization;
 
@@ -6,6 +7,7 @@ namespace HttpWebRequestSerializer
 {
     public static class Serializer
     {
+        // ReSharper disable once InconsistentNaming
         private static readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
 
         public static string SerializeRequestProperties(this IDictionary<string, object> properties, SerializationOptions so = null)
@@ -19,7 +21,7 @@ namespace HttpWebRequestSerializer
                 request.Remove(s);
 
             // check if any values are null
-            // What's likely happening is that SignalData is indirectly changing the serialized dictionary under the hood during the loop.
+            // What's likely happening is that request is indirectly changing the serialized dictionary under the hood during the loop.
             // So convert to list fixes that
             foreach (var o in request.ToList())
                 if (o.Value == null) request[o.Key] = "";

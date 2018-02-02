@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace HttpWebRequestSerializerTests
 {
     [TestFixture()]
-    public class TextSerializer
+    public class TextSerializerTests
     {
         private const string sampleGet =
             @"GET https://httpbin.org/get HTTP/1.1
@@ -18,7 +18,7 @@ Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/a
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9";
 
-        private const string serializedGet = @"{""Uri"":""https://httpbin.org/get"",""Headers"":{""Method"":""GET"",""HttpVersion"":""HTTP/1.1"",""Host"":""httpbin.org"",""Connection"":""keep-alive"",""User-Agent"":""Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36"",""Upgrade-Insecure-Requests"":""1"",""Accept"":""text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"",""Accept-Encoding"":""gzip, deflate, br"",""Accept-Language"":""en-US,en;q=0.9""},""Cookie"":{},""Data"":null}";
+        private const string serializedGet = @"{""Uri"":""https://httpbin.org/get"",""Headers"":{""Method"":""GET"",""HttpVersion"":""HTTP/1.1"",""Host"":""httpbin.org"",""Connection"":""keep-alive"",""User-Agent"":""Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36"",""Upgrade-Insecure-Requests"":""1"",""Accept"":""text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"",""Accept-Encoding"":""gzip, deflate, br"",""Accept-Language"":""en-US,en;q=0.9""},""Cookie"":{},""RequestData"":null}";
 
         private const string samplePost =
             @"POST https://httpbin.org/post HTTP/1.1
@@ -45,7 +45,7 @@ helloworld";
 
         private const string samplePostNoCarriageReturn = @"POST https://httpbin.org/post HTTP/1.1\nHost: httpbin.org\nUser-Agent: curl/7.54.1\nAccept: */*\nContent-Length: 10\nContent-Type: application/x-www-form-urlencoded\nCookie: ilikecookies=chocchip\n\nhelloworld";
 
-        private const string serializedPost = @"{""Uri"":""https://httpbin.org/post"",""Headers"":{""Method"":""POST"",""HttpVersion"":""HTTP/1.1"",""Host"":""httpbin.org"",""User-Agent"":""curl/7.54.1"",""Accept"":""*/*"",""Content-Length"":""10"",""Content-Type"":""application/x-www-form-urlencoded""},""Cookie"":{""ilikecookies"":""chocchip""},""Data"":""helloworld""}";
+        private const string serializedPost = @"{""Uri"":""https://httpbin.org/post"",""Headers"":{""Method"":""POST"",""HttpVersion"":""HTTP/1.1"",""Host"":""httpbin.org"",""User-Agent"":""curl/7.54.1"",""Accept"":""*/*"",""Content-Length"":""10"",""Content-Type"":""application/x-www-form-urlencoded""},""Cookie"":{""ilikecookies"":""chocchip""},""RequestData"":""helloworld""}";
         private const string serializedPostNoCookieNoData = "{\"Uri\":\"https://httpbin.org/post\",\"Headers\":{\"Method\":\"POST\",\"HttpVersion\":\"HTTP/1.1\",\"Host\":\"httpbin.org\",\"User-Agent\":\"curl/7.54.1\",\"Accept\":\"*/*\",\"Content-Length\":\"10\",\"Content-Type\":\"application/x-www-form-urlencoded\"}}";
 
         [Test]
@@ -67,8 +67,8 @@ helloworld";
         public void Should_Not_Serialize_Data_Or_Cookies()
         {
             var so = new SerializationOptions();
-            so.IgnoreKey("Cookie");
-            so.IgnoreKey("Data");
+            so.IgnoreKey(SerializationOptionKey.Cookie);
+            so.IgnoreKey(SerializationOptionKey.RequestData);
             var json = HttpParser.GetRawRequestAsJson(samplePost, so);
 
             Assert.AreEqual(serializedPostNoCookieNoData, json);
@@ -169,8 +169,6 @@ Accept-Language: en-US,en;q=0.9";
             var r = @"GET http://www.trdpnetwork.org/FGP/Provider HTTP/1.1";
 
             var so = new SerializationOptions();
-            //so.IgnoreKey("Cookie");
-            //so.IgnoreKey("Data");
 
             var json = HttpParser.GetRawRequestAsJson(r, so);
             var req = RequestBuilder.CreateWebRequestFromJson(json);

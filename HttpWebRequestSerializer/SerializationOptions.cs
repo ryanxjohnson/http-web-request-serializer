@@ -5,19 +5,26 @@ namespace HttpWebRequestSerializer
 {
     public class SerializationOptions
     {
-        private readonly string[] validKeys = { "Uri", "Headers", "Cookie", "Data" };
-
         public List<string> DoNotSerialize;
 
-        public SerializationOptions()
+        public SerializationOptions(SerializationOptionKey[] serializationOptionKeys = null)
         {
-            DoNotSerialize = new List<string>();    
+            DoNotSerialize = new List<string>();
+
+            if (serializationOptionKeys == null) return;
+
+            foreach (var key in serializationOptionKeys)
+                IgnoreKey(key);
         }
 
-        public void IgnoreKey(string key)
+        public void IgnoreKey(SerializationOptionKey serializationOptionKey)
         {
-            if (Array.Exists(validKeys, k => k == key))
-                DoNotSerialize.Add(key);
+            DoNotSerialize.Add(GetKeyName(serializationOptionKey));
+        }
+
+        public static string GetKeyName(SerializationOptionKey serializationOptionKey)
+        {
+            return Enum.GetName(typeof(SerializationOptionKey), serializationOptionKey);
         }
     }
 }

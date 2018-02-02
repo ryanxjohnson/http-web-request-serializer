@@ -93,7 +93,7 @@ namespace HttpWebRequestSerializer
             var req = (HttpWebRequest)WebRequest.Create(uri);
             req.SetHeaders(parsedRequest.Headers);
             if (parsedRequest.Cookies != null) req.SetCookies(parsedRequest.Cookies, uri);
-            req.SetPostData(parsedRequest.RequestBody);
+            if (!string.IsNullOrEmpty(parsedRequest.RequestBody)) req.SetPostData(parsedRequest.RequestBody);
 
             return req;
         }
@@ -103,9 +103,9 @@ namespace HttpWebRequestSerializer
             var uri = (string)dict["Uri"];
 
             var req = (HttpWebRequest)WebRequest.Create(uri);
-            req.SetHeaders((IDictionary<string, object>)dict["Headers"]);
-            req.SetCookies((IDictionary<string, object>)dict["Cookie"], uri);
-            req.SetPostData((string)dict["Data"]);
+            if (dict.ContainsKey("Headers")) req.SetHeaders((IDictionary<string, object>)dict["Headers"]);
+            if (dict.ContainsKey("Cookie")) req.SetCookies((IDictionary<string, object>) dict["Cookie"], uri);
+            if (dict.ContainsKey("Data")) req.SetPostData((string)dict["Data"]);
 
             return req;
         }
@@ -125,6 +125,8 @@ namespace HttpWebRequestSerializer
 
         private static void SetPostData(this HttpWebRequest req, string postData)
         {
+            if (string.IsNullOrEmpty(postData)) return;
+            
             if (req.Method == "POST")
                 req.WritePostDataToRequestStream(postData);
         }
