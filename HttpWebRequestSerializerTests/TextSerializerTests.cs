@@ -53,6 +53,7 @@ helloworld";
         {
             var json = HttpParser.GetRawRequestAsJson(sampleGet);
             Assert.AreEqual(serializedGet, json);
+            Console.WriteLine(json);
         }
 
         [TestCase(samplePost, serializedPost)]
