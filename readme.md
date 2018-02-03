@@ -23,10 +23,23 @@ Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9";
 ```
 
+#### Note on SerializationOptions:
+You can apecify what the parser should not serialize. Pass SerializationOptions as an optional parameter to the parser. For example, it might not make sense to serialize cookies if you are dynamically adding them later.
+
+```
+SerializationOptions options = new SerializationOptions(new [] { SerializationOptionKey.Cookie });
+```
+
+or
+
+```
+SerializationOptions options = new SerializationOptions();
+options.IgnoreKey(SerializationOptionKey.Cookie);
+```
+
 ### Parse to JSON:
 ```
 var json = HttpParser.GetRawRequestAsJson(sampleGet);
-
 
 returns "{""Uri"":""https://httpbin.org/get"",""Headers"":{""Method"":""GET"",""HttpVersion"":""HTTP/1.1"",""Host"":""httpbin.org"",""Connection"":""keep-alive"",""User-Agent"":""Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36"",""Upgrade-Insecure-Requests"":""1"",""Accept"":""text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"",""Accept-Encoding"":""gzip, deflate, br"",""Accept-Language"":""en-US,en;q=0.9""},""Cookie"":{},""RequestData"":null}"
 ```
@@ -52,4 +65,9 @@ var request = RequestBuilder.CreateWebRequestFromDictionary(dict);
 
 ```
 var request = RequestBuilder.CreateWebRequestFromParsedRequest(parsed);
+```
+
+### Execute Web Request and capture response:
+```
+string response = request.GetResponseAsString();
 ```
