@@ -8,7 +8,7 @@ namespace HttpWebRequestSerializer
 {
     public static class HttpParser
     {
-        public static ParsedRequest GetParsedRequest(string request, SerializationOptions so = null)
+        public static ParsedRequest GetParsedRequest(string request, IgnoreSerializationOptions so = null)
         {
             var (uri, headers, cookies, data) = request.ParseRawRequest();
 
@@ -43,7 +43,7 @@ namespace HttpWebRequestSerializer
             };
         }
 
-        public static string GetRawRequestAsJson(string request, SerializationOptions so = null)
+        public static string GetRawRequestAsJson(string request, IgnoreSerializationOptions so = null)
         {
             try
             {
@@ -56,16 +56,16 @@ namespace HttpWebRequestSerializer
             }
         }
 
-        public static IDictionary<string, object> GetRawRequestAsDictionary(string request, SerializationOptions so = null)
+        public static IDictionary<string, object> GetRawRequestAsDictionary(string request, IgnoreSerializationOptions so = null)
         {
             var parsed = request.ParseRawRequest();
 
             var dict = new Dictionary<string, object>
             {
-                { SerializationOptions.GetKeyName(SerializationOptionKey.Uri), parsed.uri },
-                { SerializationOptions.GetKeyName(SerializationOptionKey.Headers), parsed.headers },
-                { SerializationOptions.GetKeyName(SerializationOptionKey.Cookie), parsed.cookies },
-                { SerializationOptions.GetKeyName(SerializationOptionKey.RequestData), parsed.data }
+                { IgnoreSerializationOptions.GetKeyName(IgnoreSerializationOptionKey.Uri), parsed.uri },
+                { IgnoreSerializationOptions.GetKeyName(IgnoreSerializationOptionKey.Headers), parsed.headers },
+                { IgnoreSerializationOptions.GetKeyName(IgnoreSerializationOptionKey.Cookie), parsed.cookies },
+                { IgnoreSerializationOptions.GetKeyName(IgnoreSerializationOptionKey.RequestData), parsed.data }
             };
 
             if (so?.DoNotSerialize == null)
@@ -101,7 +101,7 @@ namespace HttpWebRequestSerializer
             }
 
             // Cookie gets serialized separate from headers, so ignore it
-            headers.Remove(SerializationOptions.GetKeyName(SerializationOptionKey.Cookie));
+            headers.Remove(IgnoreSerializationOptions.GetKeyName(IgnoreSerializationOptionKey.Cookie));
         }
 
         private static string GetRequestData(string rawRequest, IReadOnlyDictionary<string, object> headers, string[] parsedRequest, ValueTuple<string, string, string> requestLine)

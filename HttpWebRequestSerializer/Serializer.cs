@@ -10,7 +10,7 @@ namespace HttpWebRequestSerializer
         // ReSharper disable once InconsistentNaming
         private static readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
 
-        public static string SerializeRequestProperties(this IDictionary<string, object> properties, SerializationOptions so = null)
+        public static string SerializeRequestProperties(this IDictionary<string, object> properties, IgnoreSerializationOptions so = null)
         {
             var request = properties.MakeDictionary();
 

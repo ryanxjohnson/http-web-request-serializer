@@ -67,9 +67,9 @@ helloworld";
         [Test]
         public void Should_Not_Serialize_Data_Or_Cookies()
         {
-            var so = new SerializationOptions(new [] { SerializationOptionKey.Cookie });
-            so.IgnoreKey(SerializationOptionKey.Cookie);
-            so.IgnoreKey(SerializationOptionKey.RequestData);
+            var so = new IgnoreSerializationOptions(new [] { IgnoreSerializationOptionKey.Cookie });
+            so.IgnoreKey(IgnoreSerializationOptionKey.Cookie);
+            so.IgnoreKey(IgnoreSerializationOptionKey.RequestData);
             var json = HttpParser.GetRawRequestAsJson(samplePost, so);
 
             Assert.AreEqual(serializedPostNoCookieNoData, json);
@@ -169,7 +169,7 @@ Accept-Language: en-US,en;q=0.9";
         {
             var r = @"GET http://www.trdpnetwork.org/FGP/Provider HTTP/1.1";
 
-            var so = new SerializationOptions();
+            var so = new IgnoreSerializationOptions();
 
             var json = HttpParser.GetRawRequestAsJson(r, so);
             var req = RequestBuilder.CreateWebRequestFromJson(json);

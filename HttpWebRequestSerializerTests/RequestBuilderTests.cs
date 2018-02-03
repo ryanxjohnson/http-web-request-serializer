@@ -15,10 +15,15 @@ namespace HttpWebRequestSerializerTests
         {
             var parsed = new ParsedRequest
             {
-                Url = @"http://www.google.com"
+                Url = @"http://www.google.com",
+                Headers = new Dictionary<string, object> { { "Method", "POST" } },
+                Cookies = null,
+                RequestBody = "request data"
             };
 
             var req = parsed.CreateWebRequestFromParsedRequest();
+
+            Assert.AreEqual(4, req.Headers.Count);
         }
 
         [Test]
@@ -32,21 +37,15 @@ namespace HttpWebRequestSerializerTests
                 RequestBody = "request data"
             };
 
-            var req = parsed.CreateWebRequestFromParsedRequest(CallBack);
-            Console.WriteLine("Built Request");
+            var req = parsed.CreateWebRequestFromParsedRequest(AddDynamicHeaders);
+
+            Assert.AreEqual(5, req.Headers.Count);
         }
 
-        [Test]
-        public void Should_Parse_Build_Request_CallBack()
-        {
-            
-        }
-
-        private static void CallBack(HttpWebRequest req, string postData)
+        private static void AddDynamicHeaders(HttpWebRequest req)
         {
             Console.WriteLine("Adding custom headers...");
-            Console.WriteLine($"Adding request body to {req.RequestUri}");
-            req.WritePostDataToRequestStream(postData);
+            req.Headers.Add("Key", "Value");
         }
     }
 }

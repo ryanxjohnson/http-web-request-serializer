@@ -7,17 +7,17 @@ namespace HttpWebRequestSerializer
 {
     public static class RequestBuilder
     {
-        public static HttpWebRequest CreateWebRequestFromParsedRequest(this ParsedRequest parsedRequest, Action<HttpWebRequest, string> callback = null)
+        public static HttpWebRequest CreateWebRequestFromParsedRequest(this ParsedRequest parsedRequest, Action<HttpWebRequest> callback = null)
         {
             return BuildRequest(parsedRequest, callback);
         }
 
-        public static HttpWebRequest CreateWebRequestFromJson(string json, Action<HttpWebRequest, string> callback = null)
+        public static HttpWebRequest CreateWebRequestFromJson(string json, Action<HttpWebRequest> callback = null)
         {
             return BuildRequest(json.DeserializeRequestProperties(), callback);
         }
 
-        public static HttpWebRequest CreateWebRequestFromDictionary(IDictionary<string, object> dict, Action<HttpWebRequest, string> callback = null)
+        public static HttpWebRequest CreateWebRequestFromDictionary(IDictionary<string, object> dict, Action<HttpWebRequest> callback = null)
         {
             return BuildRequest(dict, callback);
         }
@@ -86,7 +86,7 @@ namespace HttpWebRequestSerializer
             return req;
         }
 
-        private static HttpWebRequest BuildRequest(ParsedRequest parsedRequest, Action<HttpWebRequest, string> callback = null)
+        private static HttpWebRequest BuildRequest(ParsedRequest parsedRequest, Action<HttpWebRequest> callback = null)
         {
             var uri = parsedRequest.Url;
 
@@ -94,7 +94,7 @@ namespace HttpWebRequestSerializer
             req.SetHeaders(parsedRequest.Headers);
             if (parsedRequest.Cookies != null) req.SetCookies(parsedRequest.Cookies, uri);
 
-            callback?.Invoke(req, parsedRequest.RequestBody);
+            callback?.Invoke(req);
 
             // Calling GetRequestStream closes the request for adding headers, 
             // so don't do this unless you are positive you don't need to add
@@ -105,7 +105,7 @@ namespace HttpWebRequestSerializer
             return req;
         }
 
-        private static HttpWebRequest BuildRequest(IDictionary<string, object> dict, Action<HttpWebRequest, string> callback = null)
+        private static HttpWebRequest BuildRequest(IDictionary<string, object> dict, Action<HttpWebRequest> callback = null)
         {
             var uri = (string)dict["Uri"];
 
@@ -113,7 +113,7 @@ namespace HttpWebRequestSerializer
             if (dict.ContainsKey("Headers")) req.SetHeaders((IDictionary<string, object>)dict["Headers"]);
             if (dict.ContainsKey("Cookie")) req.SetCookies((IDictionary<string, object>) dict["Cookie"], uri);
 
-            callback?.Invoke(req, (string)dict["Data"]);
+            callback?.Invoke(req);
 
             if (dict.ContainsKey("Data")) req.SetPostData((string)dict["Data"]);
 

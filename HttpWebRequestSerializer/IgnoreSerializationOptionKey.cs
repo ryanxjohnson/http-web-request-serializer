@@ -1,6 +1,6 @@
 ﻿namespace HttpWebRequestSerializer
 {
-    public enum SerializationOptionKey
+    public enum IgnoreSerializationOptionKey
     {
         Uri,
         Headers,
