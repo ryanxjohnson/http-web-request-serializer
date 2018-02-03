@@ -81,6 +81,18 @@ var request = RequestBuilder.CreateWebRequestFromParsedRequest(parsed);
 ## Using Callback during BuildRequest
 Calling `request.GetRequestStream()` closes the request for adding headers, so unless you are positive you don't need to add any new headers after writing the request body, use the call back to defer this to your client
 
+### What this looks like:
+```
+// build request
+HttpWebRequest request = ... build request
+
+// defer control back to the calling method
+callback?.Invoke(request);
+
+// add request body
+request.WritePostDataToRequestStream(requestBody);
+```
+
 ### Sample RequestBuilder with callback
 ```
 void ClientBuildRequest()
@@ -96,7 +108,6 @@ static void AddMoreDynamicHeaders(HttpWebRequest request, string requestBody)
 {
 // request.Headers.Add(...)
 }
-
 ```
 
 ### Execute Web Request and capture response:
