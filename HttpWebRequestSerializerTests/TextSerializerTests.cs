@@ -66,7 +66,7 @@ helloworld";
         [Test]
         public void Should_Not_Serialize_Data_Or_Cookies()
         {
-            var so = new SerializationOptions();
+            var so = new SerializationOptions(new [] { SerializationOptionKey.Cookie });
             so.IgnoreKey(SerializationOptionKey.Cookie);
             so.IgnoreKey(SerializationOptionKey.RequestData);
             var json = HttpParser.GetRawRequestAsJson(samplePost, so);
@@ -88,7 +88,7 @@ helloworld";
             Assert.AreEqual("System.Net.HttpWebRequest", req.GetType().ToString());
         }
 
-        [Test]
+        [Test, Ignore("Requires Web")]
         public void Should_Build_ParsedRequestGet()
         {
             var pr = HttpParser.GetParsedRequest(sampleGet);
@@ -97,7 +97,7 @@ helloworld";
             req.GetResponseString();
         }
 
-        [Test]
+        [Test, Ignore("Requires Web")]
         public void Should_Build_ParsedRequestPost()
         {
             var pr = HttpParser.GetParsedRequest(samplePost);

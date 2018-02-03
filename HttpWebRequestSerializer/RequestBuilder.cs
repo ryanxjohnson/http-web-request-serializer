@@ -7,19 +7,19 @@ namespace HttpWebRequestSerializer
 {
     public static class RequestBuilder
     {
-        public static HttpWebRequest CreateWebRequestFromParsedRequest(this ParsedRequest parsedRequest)
+        public static HttpWebRequest CreateWebRequestFromParsedRequest(this ParsedRequest parsedRequest, Action<HttpWebRequest, string> callback = null)
         {
-            return BuildRequest(parsedRequest);
+            return BuildRequest(parsedRequest, callback);
         }
 
-        public static HttpWebRequest CreateWebRequestFromJson(string json)
+        public static HttpWebRequest CreateWebRequestFromJson(string json, Action<HttpWebRequest, string> callback = null)
         {
-            return BuildRequest(json.DeserializeRequestProperties());
+            return BuildRequest(json.DeserializeRequestProperties(), callback);
         }
 
-        public static HttpWebRequest CreateWebRequestFromDictionary(IDictionary<string, object> dict)
+        public static HttpWebRequest CreateWebRequestFromDictionary(IDictionary<string, object> dict, Action<HttpWebRequest, string> callback = null)
         {
-            return BuildRequest(dict);
+            return BuildRequest(dict, callback);
         }
 
         public static HttpWebRequest SetHeader(this HttpWebRequest req, string key, string value)
@@ -86,25 +86,35 @@ namespace HttpWebRequestSerializer
             return req;
         }
 
-        private static HttpWebRequest BuildRequest(ParsedRequest parsedRequest)
+        private static HttpWebRequest BuildRequest(ParsedRequest parsedRequest, Action<HttpWebRequest, string> callback = null)
         {
             var uri = parsedRequest.Url;
 
             var req = (HttpWebRequest)WebRequest.Create(uri);
             req.SetHeaders(parsedRequest.Headers);
             if (parsedRequest.Cookies != null) req.SetCookies(parsedRequest.Cookies, uri);
+
+            callback?.Invoke(req, parsedRequest.RequestBody);
+
+            // Calling GetRequestStream closes the request for adding headers, 
+            // so don't do this unless you are positive you don't need to add
+            // any new headers after appending the request body
+            // Use the call back to defer this to your client
             if (!string.IsNullOrEmpty(parsedRequest.RequestBody)) req.SetPostData(parsedRequest.RequestBody);
 
             return req;
         }
 
-        private static HttpWebRequest BuildRequest(IDictionary<string, object> dict)
+        private static HttpWebRequest BuildRequest(IDictionary<string, object> dict, Action<HttpWebRequest, string> callback = null)
         {
             var uri = (string)dict["Uri"];
 
             var req = (HttpWebRequest)WebRequest.Create(uri);
             if (dict.ContainsKey("Headers")) req.SetHeaders((IDictionary<string, object>)dict["Headers"]);
             if (dict.ContainsKey("Cookie")) req.SetCookies((IDictionary<string, object>) dict["Cookie"], uri);
+
+            callback?.Invoke(req, (string)dict["Data"]);
+
             if (dict.ContainsKey("Data")) req.SetPostData((string)dict["Data"]);
 
             return req;
@@ -112,12 +122,16 @@ namespace HttpWebRequestSerializer
 
         private static void SetHeaders(this HttpWebRequest req, IDictionary<string, object> headers)
         {
+            if (headers == null) return;
+
             foreach (var header in headers)
                 req.SetHeader(header.Key, (string) header.Value);
         }
 
         private static void SetCookies(this HttpWebRequest req, IDictionary<string, object> cookies, string uri)
         {
+            if (cookies == null) return;
+
             req.CookieContainer = new CookieContainer();
             foreach (var cookie in cookies)
                 req.CookieContainer.Add(new Uri(uri), new Cookie(cookie.Key, (string)cookie.Value));

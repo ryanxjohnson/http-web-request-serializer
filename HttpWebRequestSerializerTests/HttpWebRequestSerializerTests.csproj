@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HttpParserTests.cs" />
+    <Compile Include="RequestBuilderTests.cs" />
     <Compile Include="RequestDisassemblerTests.cs" />
     <Compile Include="SerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

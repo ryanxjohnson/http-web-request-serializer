@@ -100,7 +100,7 @@ helloworld";
                 Console.WriteLine($"{cookie.Key}:{cookie.Value}");
         }
 
-        [Test]
+        [Test, Ignore("Requires Web")]
         public void Should_Parse_Headers_And_Build_Http_Request()
         {
             var result = HttpParser.GetRawRequestAsDictionary(samplePost);

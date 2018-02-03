@@ -7,7 +7,7 @@ using HttpWebRequestSerializer;
 namespace HttpWebRequestSerializerTests
 {
     [TestFixture]
-    public class RequestBuilderTests
+    public class SerializerTests
     {
         private string json = @"{""Url"":""http://www.google.com"",""Headers"":{""Method"":""get"",""Accept"":""text/html"",""ContentType"":""json"",""Host"":""www.google.com"",""Referer"":""http://www.google.com"",""UserAgent"":""chrome"",""KeepAlive"":""true"",""VerificationToken"":""abcdefg"",""Upgrade-Insecure-Requests"":""1""}}";
         private IDictionary<string, object> requestDictionary;
