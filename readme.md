@@ -77,14 +77,23 @@ Calling `GetRequestStream()` closes the request for adding headers, so unless yo
 
 ### Sample RequestBuilder with callback
 ```
-var requestBody = "myRequestBody";
+void ClientBuildRequest()
+{
+// parse raw request...
 
-var request = parsed.CreateWebRequestFromParsedRequest(Callback);
+var request = parsed.CreateWebRequestFromParsedRequest(DeferWritingRequestBody);
 
+// do stuff with the completed request
+}
+
+static void DeferWritingRequestBody(HttpWebRequest request, string requestBody)
+{
 // request.Headers.Add(...)
 
 // extension method available to write request body and set content length
 request.WritePostDataToRequestStream(requestBody);
+}
+
 ```
 
 ### Execute Web Request and capture response:
