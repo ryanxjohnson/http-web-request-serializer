@@ -104,7 +104,7 @@ var request = parsed.CreateWebRequestFromParsedRequest(AddMoreDynamicHeaders);
 // do stuff with the completed request
 }
 
-static void AddMoreDynamicHeaders(HttpWebRequest request, string requestBody)
+static void AddMoreDynamicHeaders(HttpWebRequest request)
 {
 // request.Headers.Add(...)
 }
