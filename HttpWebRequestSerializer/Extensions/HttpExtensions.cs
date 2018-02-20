@@ -8,21 +8,42 @@ namespace HttpWebRequestSerializer.Extensions
     {
         public static string GetResponseString(this HttpWebRequest req)
         {
-            using (var resp = req.GetResponse())
+            using (var resp = (HttpWebResponse)req.GetResponse())
             {
-                if (resp.Headers["Content-Encoding"] == "gzip")
-                {
-                    using (var stream = resp.GetResponseStream())
-                        if (stream != null)
-                            using (var streamReader = new StreamReader(GetGzipStream((HttpWebResponse)resp)))
-                                return streamReader.ReadToEnd();
-                }
+                return ResponseString(resp);
+            }
+        }
 
+        public static (string response, int statusCode, string statusDescription) GetResponseStringAndStatus(this HttpWebRequest req)
+        {
+            using (var resp = (HttpWebResponse)req.GetResponse())
+            {
+                return (ResponseString(resp), (int)resp.StatusCode, resp.StatusDescription);
+            }
+        }
+
+        public static (int statusCode, string statusDescription) ExecuteRequestGetStatus(this HttpWebRequest req)
+        {
+            using (var resp = (HttpWebResponse)req.GetResponse())
+            {
+                return ((int)resp.StatusCode, resp.StatusDescription);
+            }
+        }
+
+        private static string ResponseString(this HttpWebResponse resp)
+        {
+            if (resp.Headers["Content-Encoding"] == "gzip")
+            {
                 using (var stream = resp.GetResponseStream())
                     if (stream != null)
-                        using (var streamReader = new StreamReader(stream))
+                        using (var streamReader = new StreamReader(GetGzipStream(resp)))
                             return streamReader.ReadToEnd();
             }
+
+            using (var stream = resp.GetResponseStream())
+                if (stream != null)
+                    using (var streamReader = new StreamReader(stream))
+                        return streamReader.ReadToEnd();
 
             return null;
         }
