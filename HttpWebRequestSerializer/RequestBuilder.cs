@@ -33,6 +33,7 @@ namespace HttpWebRequestSerializer
                     req.Accept = value;
                     break;
                 case "Connection":
+                    req.KeepAlive = value.ToLower() == "keep-alive";
                     //req.Connection = value;
                     //System.ArgumentException : Keep-Alive and Close may not be set using this property.
                     break;
@@ -64,6 +65,7 @@ namespace HttpWebRequestSerializer
                     break;
                 case "KeepAlive":
                 case "Keep-Alive":
+                case "keep-alive":
                     req.KeepAlive = Convert.ToBoolean(value);
                     break;
                 case "Proxy-Connection":

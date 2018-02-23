@@ -79,7 +79,7 @@ namespace HttpWebRequestSerializer
 
         public static (string uri, IDictionary<string, object> headers, IDictionary<string, object> cookies, string data) ParseRawRequest(this string rawRequest)
         {
-            var parsedRequest = rawRequest.Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
+            var parsedRequest = rawRequest.TrimEnd(Environment.NewLine.ToCharArray()).Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
 
             var requestLine = parsedRequest[0].ParseRequestLine();
 
@@ -97,7 +97,7 @@ namespace HttpWebRequestSerializer
             for (var i = 1; i < DetectSplitIndex(parsedRequest); i++)
             {
                 var header = parsedRequest[i].Split(new[] { ':' }, 2);
-                headers[header[0].CleanHeader()] = header[1].CleanHeader();
+                headers[header[0].Trim()] = header[1].Trim();
             }
 
             // Cookie gets serialized separate from headers, so ignore it
@@ -129,12 +129,11 @@ namespace HttpWebRequestSerializer
 
         private static Dictionary<string, object> InitializeHeadersDictionary(ValueTuple<string, string, string> requestLine)
         {
-            var headers = new Dictionary<string, object>
+            return new Dictionary<string, object>
             {
                 ["Method"] = requestLine.Item1,
                 ["HttpVersion"] = requestLine.Item3
             };
-            return headers;
         }
 
         private static IDictionary<string, object> GetCookiesFromParsedRequest(string request, string[] parsedRequest)

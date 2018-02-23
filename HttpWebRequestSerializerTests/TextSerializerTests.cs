@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using HttpWebRequestSerializer;
 using HttpWebRequestSerializer.Extensions;
 using NUnit.Framework;
@@ -175,6 +176,37 @@ Accept-Language: en-US,en;q=0.9";
             var req = RequestBuilder.CreateWebRequestFromJson(json);
 
             Console.WriteLine(json);
+        }
+
+        private const string SiteSession = @"GET https://www.url.com/app/providerSearch/solrProxy?&q=state:%22CA%22&fq=product_code:1UC&wt=json&facet=true&facet.field=PRV_TYPE&facet.field=SPECIALTY&facet.field=MEDICAL_GROUP&facet.field=LANGUAGE&facet.field=STAFFLANGUAGE&facet.mincount=1&facet.sort=indext&fq=PRV_TYPE:I&fq=product_code:1UC&start=0&rows=48&fq=-SPECIALTY:UNKNOWN&fq=-SPECIALTY:%22UNAVAILABLE%20FOR%20DATA%20ENTRY%22&facet.limit=400&fl=listing_idx,PRV_ID,PRV_ID_TYPE,PRV_FULL_NAME,score,SPECIALTY,PRV_TYPE,medical_plan_count,state,location,PRODUCT_NAME,product_code,street_1,street_2,suite,city,state,zip,county,PRODUCT_START_DATE,IS_HMO,ORIG_PRV_TYPE,pcp_spec_flag,accept_new_pat_flag,telemedicine_capable,telemedicine_indicator,onsite_indicator,ENROLLMENTID,PHONE_NUM,phy_degree,phy_gender,MEDICAL_GROUP,medicaid_ffs_flag,provider_ind,accreditation,future_eff_date,future_exp_date,effDateCount,expDateCount&facet.field=PRODUCT_EXT&facet.field=MEDICAL_GROUP&facet.field=MEDICAL_GROUP_ID&facet.field=HOSPITAL&facet.field=SERVICE&facet.sort=index&group.format=grouped&group.limit=1000&group.sort=score%20asc,product_code%20asc&group=true&group.field=PRV_ID_TYPE&group.ngroups=true&group.sort=score%20asc,product_code%20asc&group.truncate=false&sort=PRV_FULL_NAME_SORT%20asc&json.wrf=__gwt_jsonp__.P17.onSuccess HTTP/1.1
+Host: www.url.com
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36
+Accept: */**/
+DNT: 1
+Referer: https://www.url.com/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+";
+        [Test]
+        public void Parse_Should_Be_Equal()
+        {
+            var parsed1 = HttpParser.GetParsedRequest(SiteSession);
+            var headers = new Dictionary<string, object>
+            {
+                { "Method", "GET" },
+                { "Version", "HTTP/1.1" },
+                { "Host", "www.url.com" },
+                { "Connection", "Keep-Alive" },
+                { "User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36" },
+                { "Accept", "*/**/" },
+                { "DNT", "1" },
+                { "Referer", "https://www.url.com" },
+                { "Accept-Encoding", "gzip, deflate, br" },
+                { "Accept-Language", "en-US,en;q=0.9" }
+            };
+
+            Assert.AreEqual(headers.Count, parsed1.Headers.Count);
         }
     }
 }
