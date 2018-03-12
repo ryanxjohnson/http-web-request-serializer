@@ -30,7 +30,7 @@ namespace HttpWebRequestSerializer.Extensions
             }
         }
 
-        private static string ResponseString(this HttpWebResponse resp)
+        public static string ResponseString(this HttpWebResponse resp)
         {
             if (resp.Headers["Content-Encoding"] == "gzip")
             {
