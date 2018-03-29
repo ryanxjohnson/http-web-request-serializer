@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace HttpWebRequestSerializer
 {
@@ -8,5 +9,6 @@ namespace HttpWebRequestSerializer
         public IDictionary<string, object> Headers;
         public IDictionary<string, object> Cookies;
         public string RequestBody;
+        public Uri Uri;
     }
 }

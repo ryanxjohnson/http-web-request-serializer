@@ -24,60 +24,60 @@ namespace HttpWebRequestSerializer
 
         public static HttpWebRequest SetHeader(this HttpWebRequest req, string key, string value)
         {
-            switch (key)
+            switch (key.ToLower())
             {
-                case "Method":
+                case "method":
                     req.Method = value;
                     break;
-                case "Accept":
+                case "accept":
                     req.Accept = value;
                     break;
-                case "Connection":
+                case "connection":
                     req.KeepAlive = value.ToLower() == "keep-alive";
                     //req.Connection = value;
                     //System.ArgumentException : Keep-Alive and Close may not be set using this property.
                     break;
-                case "ContentType":
-                case "Content-Type":
+                case "contenttype":
+                case "content-type":
                     req.ContentType = value;
                     break;
-                case "Content-Length":
+                case "content-length":
+                case "contentlength":
                     req.ContentLength = Convert.ToInt64(value);
                     break;
-                case "Date":
+                case "date":
                     req.Date = Convert.ToDateTime(value);
                     break;
-                case "Expect":
+                case "expect":
                     if (value == "100-continue")
                         break;
                     req.Expect = value;
                     break;
-                case "Host":
+                case "host":
                     req.Host = value;
                     break;
-                case "HttpVersion":
+                case "httpversion":
                     var version = Convert.ToString(value).Split('/')[1];
                     req.ProtocolVersion = Version.Parse(version);
                     break;
-                case "IfModifiedSince":
-                case "If-Modified-Since":
+                case "ifmodifiedsince":
+                case "if-modified-since":
                     req.IfModifiedSince = Convert.ToDateTime(value);
                     break;
-                case "KeepAlive":
-                case "Keep-Alive":
+                case "keepalive":
                 case "keep-alive":
                     req.KeepAlive = Convert.ToBoolean(value);
                     break;
-                case "Proxy-Connection":
+                case "proxy-connection":
                     break;
-                case "Referer":
+                case "referer":
                     req.Referer = value;
                     break;
-                case "TransferEncoding":
+                case "transferEncoding":
                     req.TransferEncoding = value;
                     break;
-                case "UserAgent":
-                case "User-Agent":
+                case "useragent":
+                case "user-agent":
                     req.UserAgent = value;
                     break;
                 default:

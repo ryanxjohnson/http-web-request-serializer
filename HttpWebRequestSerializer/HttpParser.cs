@@ -39,7 +39,8 @@ namespace HttpWebRequestSerializer
                 Url = uri,
                 Headers = headers,
                 Cookies = cookies,
-                RequestBody = data
+                RequestBody = data,
+                Uri = !string.IsNullOrEmpty(uri) ? new Uri(uri) : null
             };
         }
 
@@ -115,7 +116,7 @@ namespace HttpWebRequestSerializer
             }
             else
             {
-                var queryString = rawRequest.Contains('?') ? requestLine.Item2.Split('?')[1] : null;
+                var queryString = requestLine.Item2.Contains('?') ? requestLine.Item2.Split('?')[1] : null;
                 data = queryString;
             }
             return data;
