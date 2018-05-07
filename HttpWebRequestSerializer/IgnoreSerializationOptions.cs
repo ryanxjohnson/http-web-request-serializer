@@ -7,7 +7,6 @@ namespace HttpWebRequestSerializer
     {
         public List<string> DoNotSerialize;
 
-        //TODO: More like ignore serialization options...
         public IgnoreSerializationOptions(IgnoreSerializationOptionKey[] ignoreSerializationOptionKeys = null)
         {
             DoNotSerialize = new List<string>();

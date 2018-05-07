@@ -94,7 +94,7 @@ namespace HttpWebRequestSerializer
 
             var req = (HttpWebRequest)WebRequest.Create(uri);
             req.SetHeaders(parsedRequest.Headers);
-            if (parsedRequest.Cookies != null) req.SetCookies(parsedRequest.Cookies, uri);
+            if (parsedRequest.Cookies != null) req.SetCookies(parsedRequest.Cookies, parsedRequest.Uri);
 
             callback?.Invoke(req);
 
@@ -113,7 +113,7 @@ namespace HttpWebRequestSerializer
 
             var req = (HttpWebRequest)WebRequest.Create(uri);
             if (dict.ContainsKey("Headers")) req.SetHeaders((IDictionary<string, object>)dict["Headers"]);
-            if (dict.ContainsKey("Cookie")) req.SetCookies((IDictionary<string, object>) dict["Cookie"], uri);
+            if (dict.ContainsKey("Cookie")) req.SetCookies((IDictionary<string, object>) dict["Cookie"], new Uri(uri));
 
             callback?.Invoke(req);
 
@@ -130,13 +130,13 @@ namespace HttpWebRequestSerializer
                 req.SetHeader(header.Key, (string) header.Value);
         }
 
-        private static void SetCookies(this HttpWebRequest req, IDictionary<string, object> cookies, string uri)
+        private static void SetCookies(this HttpWebRequest req, IDictionary<string, object> cookies, Uri uri)
         {
             if (cookies == null) return;
 
             req.CookieContainer = new CookieContainer();
             foreach (var cookie in cookies)
-                req.CookieContainer.Add(new Uri(uri), new Cookie(cookie.Key, (string)cookie.Value));
+                req.CookieContainer.Add(uri, new Cookie(cookie.Key, (string)cookie.Value));
         }
 
         private static void SetPostData(this HttpWebRequest req, string postData)
