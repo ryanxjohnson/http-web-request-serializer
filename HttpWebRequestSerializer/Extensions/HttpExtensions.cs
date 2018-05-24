@@ -22,6 +22,14 @@ namespace HttpWebRequestSerializer.Extensions
             }
         }
 
+        public static (string response, int statusCode, string statusDescription, string cookieCollection) GetResponseStringAndStatusAndCookies(this HttpWebRequest req)
+        {
+            using (var resp = (HttpWebResponse)req.GetResponse())
+            {
+                return (ResponseString(resp), (int)resp.StatusCode, resp.StatusDescription, resp.Headers["Set-Cookie"]);
+            }
+        }
+
         public static (int statusCode, string statusDescription) ExecuteRequestGetStatus(this HttpWebRequest req)
         {
             using (var resp = (HttpWebResponse)req.GetResponse())
