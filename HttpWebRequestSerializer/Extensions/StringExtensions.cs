@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace HttpWebRequestSerializer.Extensions
 {
@@ -17,6 +18,11 @@ namespace HttpWebRequestSerializer.Extensions
             var match = Regex.Match(input, pattern);
             var substring = match.Groups["QueryString"].Value;
             return input.Replace("#{{" + substring + "}}", newText);    
+        }
+
+        public static string[] SplitRawRequestIntoArray(this string rawRequest)
+        {
+            return rawRequest.TrimEnd('\r', '\n').Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
         }
     }
 }

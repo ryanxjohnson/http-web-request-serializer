@@ -108,5 +108,19 @@ helloworld";
 
             Console.WriteLine(req.GetResponseString());
         }
+
+        [Test]
+        public void Should_Parse_RequestBody()
+        {
+            var parsed = HttpParser.GetParsedRequest(Po);
+
+            Assert.AreNotEqual("", parsed.RequestBody);
+        }
+
+        private string Po = @"POST https://example.com/ HTTP/1.1
+Connection: keep-alive
+
+some_sample_request_body_followed_by_CRLF
+";
     }
 }

@@ -80,7 +80,7 @@ namespace HttpWebRequestSerializer
 
         public static (string uri, IDictionary<string, object> headers, IDictionary<string, object> cookies, string data) ParseRawRequest(this string rawRequest)
         {
-            var parsedRequest = rawRequest.TrimEnd(Environment.NewLine.ToCharArray()).Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
+            var parsedRequest = rawRequest.SplitRawRequestIntoArray();
 
             var requestLine = parsedRequest[0].ParseRequestLine();
 
@@ -179,7 +179,7 @@ namespace HttpWebRequestSerializer
 
         public static bool TryParsePostDataString(this string request, out string postData)
         {
-            var index = request.Split(new[] { "\\n", "\n", "\r\n" }, StringSplitOptions.None);
+            var index = request.SplitRawRequestIntoArray();
             var postDataIndex = index.Length;
 
             if (postDataIndex == -1)
