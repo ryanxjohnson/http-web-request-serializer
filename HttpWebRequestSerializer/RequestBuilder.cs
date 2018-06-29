@@ -94,7 +94,15 @@ namespace HttpWebRequestSerializer
 
             var req = (HttpWebRequest)WebRequest.Create(uri);
             req.SetHeaders(parsedRequest.Headers);
-            if (parsedRequest.Cookies != null) req.SetCookies(parsedRequest.Cookies, parsedRequest.Uri);
+
+            if (parsedRequest.CookieContainer != null)
+            {
+                req.CookieContainer = parsedRequest.CookieContainer;
+            }
+            else
+            {
+                if (parsedRequest.Cookies != null) req.SetCookies(parsedRequest.Cookies, parsedRequest.Uri);
+            }
 
             callback?.Invoke(req);
 
