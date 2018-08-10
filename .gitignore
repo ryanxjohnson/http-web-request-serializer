@@ -25,6 +25,7 @@ _ReSharper*
 Artifacts/**
 Installer/Debug/**
 UpgradeLog.XML
+.vs
 
 # utilities
 !nunit*.exe
