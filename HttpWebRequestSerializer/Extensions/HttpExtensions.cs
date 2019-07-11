@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
+using HttpWebRequestSerializer.Models;
 using ICSharpCode.SharpZipLib.GZip;
 
 namespace HttpWebRequestSerializer.Extensions
@@ -35,6 +38,14 @@ namespace HttpWebRequestSerializer.Extensions
             using (var resp = (HttpWebResponse)req.GetResponse())
             {
                 return ((int)resp.StatusCode, resp.StatusDescription);
+            }
+        }
+
+        public static ParsedWebResponse ExecuteRequestGetParsedWebResponse(this HttpWebRequest req)
+        {
+            using (var resp = (HttpWebResponse)req.GetResponse())
+            {
+                return new ParsedWebResponse(resp);
             }
         }
 
@@ -102,6 +113,11 @@ namespace HttpWebRequestSerializer.Extensions
 
             decompressedStream.Seek(0, SeekOrigin.Begin);
             return decompressedStream;
+        }
+
+        public static Dictionary<string, string[]> ConvertWebHeadersToDictionary(this WebHeaderCollection headers)
+        {
+            return Enumerable.Range(0, headers.Count).ToDictionary(i => headers.Keys[i], headers.GetValues);
         }
     }
 }

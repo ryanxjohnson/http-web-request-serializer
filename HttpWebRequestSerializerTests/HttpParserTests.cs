@@ -120,7 +120,6 @@ helloworld";
         private string Po = @"POST https://example.com/ HTTP/1.1
 Connection: keep-alive
 
-some_sample_request_body_followed_by_CRLF
-";
+some_sample_request_body_followed_by_CRLF";
     }
 }

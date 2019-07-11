@@ -90,9 +90,9 @@ namespace HttpWebRequestSerializer
 
         private static HttpWebRequest BuildRequest(ParsedRequest parsedRequest, Action<HttpWebRequest> callback = null)
         {
-            var uri = parsedRequest.Url;
+            var url = parsedRequest.Url;
 
-            var req = (HttpWebRequest)WebRequest.Create(uri);
+            var req = (HttpWebRequest)WebRequest.Create(url);
             req.SetHeaders(parsedRequest.Headers);
 
             if (parsedRequest.CookieContainer != null)
@@ -101,7 +101,8 @@ namespace HttpWebRequestSerializer
             }
             else
             {
-                if (parsedRequest.Cookies != null) req.SetCookies(parsedRequest.Cookies, parsedRequest.Uri);
+                if (parsedRequest.Cookies != null)
+                    req.SetCookies(parsedRequest.Cookies, parsedRequest.Uri);
             }
 
             callback?.Invoke(req);
@@ -110,7 +111,8 @@ namespace HttpWebRequestSerializer
             // so don't do this unless you are positive you don't need to add
             // any new headers after appending the request body
             // Use the call back to defer this to your client
-            if (!string.IsNullOrEmpty(parsedRequest.RequestBody)) req.SetPostData(parsedRequest.RequestBody);
+            if (!string.IsNullOrEmpty(parsedRequest.RequestBody))
+                req.SetPostData(parsedRequest.RequestBody);
 
             return req;
         }
@@ -120,12 +122,17 @@ namespace HttpWebRequestSerializer
             var uri = (string)dict["Uri"];
 
             var req = (HttpWebRequest)WebRequest.Create(uri);
-            if (dict.ContainsKey("Headers")) req.SetHeaders((IDictionary<string, object>)dict["Headers"]);
-            if (dict.ContainsKey("Cookie")) req.SetCookies((IDictionary<string, object>) dict["Cookie"], new Uri(uri));
+
+            if (dict.ContainsKey("Headers"))
+                req.SetHeaders((IDictionary<string, object>)dict["Headers"]);
+
+            if (dict.ContainsKey("Cookie"))
+                req.SetCookies((IDictionary<string, object>) dict["Cookie"], new Uri(uri));
 
             callback?.Invoke(req);
 
-            if (dict.ContainsKey("Data")) req.SetPostData((string)dict["Data"]);
+            if (dict.ContainsKey("Data"))
+                req.SetPostData((string)dict["Data"]);
 
             return req;
         }

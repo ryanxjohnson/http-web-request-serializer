@@ -52,6 +52,7 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="HttpParser.cs" />
     <Compile Include="IgnoreSerializationOptionKey.cs" />
+    <Compile Include="Models\ParsedWebResponse.cs" />
     <Compile Include="ParsedRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestBuilder.cs" />
