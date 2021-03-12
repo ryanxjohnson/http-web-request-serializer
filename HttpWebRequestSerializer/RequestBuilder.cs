@@ -149,7 +149,12 @@ namespace HttpWebRequestSerializer
         {
             if (cookies == null) return;
 
-            req.CookieContainer = new CookieContainer();
+            req.CookieContainer = new CookieContainer
+            {
+                Capacity = 200,
+                PerDomainCapacity = 200
+            };
+
             foreach (var cookie in cookies)
                 req.CookieContainer.Add(uri, new Cookie(cookie.Key, (string)cookie.Value));
         }
