@@ -26,6 +26,7 @@ Artifacts/**
 Installer/Debug/**
 UpgradeLog.XML
 .vs
+packages/
 
 # utilities
 !nunit*.exe
